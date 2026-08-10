@@ -1,0 +1,16 @@
+# credentials — never commit (R5)
+.env
+*.token
+*credential*
+
+# MATLAB cruft
+*.asv
+*.m~
+slprj/
+
+# per-iteration full renders are rebuildable artifacts (backlog #3):
+# ignore the bulk output tree; only whitelisted approved audio is tracked.
+output/
+
+# logs are local
+logs/*.log

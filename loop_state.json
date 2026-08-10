@@ -1,0 +1,66 @@
+{
+  "schema_version": "2.2",
+  "project": "saturn2-subtle-colorizer",
+  "tracks": {
+    "subtle_saturation": {
+      "phase": "saturn_matching",
+      "current_iteration": 0,
+      "max_iterations": 20,
+      "best_metrics": [],
+      "hypotheses_tested": [],
+      "hypotheses_pending": [
+        "H2",
+        "H3",
+        "H6",
+        "H5",
+        "H9",
+        "H1"
+      ],
+      "status": "awaiting_reference_assets",
+      "phase_a_exit": [],
+      "voice_stage": [],
+      "voice_signoff": {
+        "enhanced": false,
+        "final": false
+      },
+      "pending_push": false
+    },
+    "subtle_tube": {
+      "phase": "saturn_matching",
+      "current_iteration": 0,
+      "max_iterations": 20,
+      "best_metrics": [],
+      "hypotheses_tested": [],
+      "hypotheses_pending": [
+        "H2",
+        "H3",
+        "H6",
+        "H5",
+        "H8",
+        "H9",
+        "H1",
+        "H7"
+      ],
+      "status": "awaiting_reference_assets",
+      "phase_a_exit": [],
+      "voice_stage": [],
+      "voice_signoff": {
+        "enhanced": false,
+        "final": false
+      },
+      "pending_push": false
+    },
+    "multiband_tool": {
+      "status": "blocked",
+      "depends_on_scaffold": [
+        "subtle_saturation.phase=voice_tuning",
+        "subtle_tube.phase=voice_tuning"
+      ],
+      "depends_on_integration": [
+        "subtle_saturation.voice_signoff.final",
+        "subtle_tube.voice_signoff.final"
+      ]
+    }
+  },
+  "notes": "Iteration -1 scaffold complete; dry signals generated. Both coloration tracks are BLOCKED on user-supplied Saturn 2 reference renders (R1-A). See render_manifest_template.csv."
+}

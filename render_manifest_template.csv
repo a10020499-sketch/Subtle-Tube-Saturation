@@ -1,0 +1,9 @@
+dry_file,mode,drive_amount_panel_value,drive_units,oversampling,tone_or_bias_knobs,mix_wet_percent,output_gain_panel_db,project_sample_rate_hz,project_bit_depth,saturn_version,rendered_filename,notes
+01_tone_battery.wav,subtle_saturation,DEFAULT,,,,100,,48000,24,,01_tone_battery.wav,"use plugin default Drive; solo single band full-range"
+02_log_sweep_moderate_-18dBFS.wav,subtle_saturation,DEFAULT,,,,100,,48000,24,,02_log_sweep_moderate_-18dBFS.wav,
+03_log_sweep_hot_-3dBFS.wav,subtle_saturation,DEFAULT,,,,100,,48000,24,,03_log_sweep_hot_-3dBFS.wav,
+04_pink_noise_broadband_-12dBFS.wav,subtle_saturation,DEFAULT,,,,100,,48000,24,,04_pink_noise_broadband_-12dBFS.wav,
+01_tone_battery.wav,subtle_tube,DEFAULT,,,,100,,48000,24,,01_tone_battery.wav,"use plugin default Drive; solo single band full-range"
+02_log_sweep_moderate_-18dBFS.wav,subtle_tube,DEFAULT,,,,100,,48000,24,,02_log_sweep_moderate_-18dBFS.wav,
+03_log_sweep_hot_-3dBFS.wav,subtle_tube,DEFAULT,,,,100,,48000,24,,03_log_sweep_hot_-3dBFS.wav,
+04_pink_noise_broadband_-12dBFS.wav,subtle_tube,DEFAULT,,,,100,,48000,24,,04_pink_noise_broadband_-12dBFS.wav,
