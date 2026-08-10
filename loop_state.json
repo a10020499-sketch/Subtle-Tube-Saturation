@@ -3,21 +3,19 @@
   "project": "saturn2-subtle-colorizer",
   "tracks": {
     "subtle_saturation": {
-      "phase": "saturn_matching",
+      "phase": "voice_tuning",
       "current_iteration": 4,
       "max_iterations": 20,
       "best_metrics": {"iteration": 4, "THD_error_db": 1.10, "HarmonicProfileError_db": 2.33, "SweepSpectralError_db": -55.04, "NormalizedLoss": 0.917, "loss_version": "phase_a_loss_v2", "note": "signpow basis; near convergence, THD/Harm 0.1/0.33 dB over threshold"},
-      "hypotheses_tested": ["baseline", "H2", "H4"],
+      "hypotheses_tested": ["baseline", "H2", "H4", "H6-ruled-out", "H5"],
       "hypotheses_pending": [
         "H3",
-        "H6",
-        "H5",
         "H9",
         "H1"
       ],
-      "status": "ready",
-      "phase_a_exit": [],
-      "voice_stage": [],
+      "status": "phase_a_exited",
+      "phase_a_exit": {"reason": "human_override", "technical_thresholds_met": false, "approved_by": "human", "iteration": 4, "note": "residual is pure low-level (-13..-24 dBFS, 1-2% THD); exact from -7 dBFS up; musically irrelevant for a bus saturator per Primary Goal"},
+      "voice_stage": "saturn_like",
       "voice_signoff": {
         "enhanced": false,
         "final": false
