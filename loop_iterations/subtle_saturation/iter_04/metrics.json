@@ -1,0 +1,54 @@
+{
+  "track": "subtle_saturation",
+  "iteration": 4,
+  "THD_error_db": 1.1026948829350665,
+  "HarmonicProfileError_db": 2.3318804604095393,
+  "SweepSpectralError_db": -55.035704907040881,
+  "BroadbandTonalError_db": -27.86928371298723,
+  "alignment_offset_samples": 0,
+  "alignment_offset_fractional": 1.6963192995822963E-18,
+  "AlignmentOffsetStability_samples": 0,
+  "per_file": [
+    {
+      "name": "01_tone_battery.wav",
+      "THD_error_db": 1.1026948829350665,
+      "HarmonicProfileError_db": 2.3318804604095393,
+      "SweepSpectralError_db": [],
+      "BroadbandTonalError_db": []
+    },
+    {
+      "name": "02_log_sweep_moderate_-18dBFS.wav",
+      "THD_error_db": [],
+      "HarmonicProfileError_db": [],
+      "SweepSpectralError_db": -50.650661188437631,
+      "BroadbandTonalError_db": []
+    },
+    {
+      "name": "03_log_sweep_hot_-3dBFS.wav",
+      "THD_error_db": [],
+      "HarmonicProfileError_db": [],
+      "SweepSpectralError_db": -59.420748625644123,
+      "BroadbandTonalError_db": []
+    },
+    {
+      "name": "04_pink_noise_broadband_-12dBFS.wav",
+      "THD_error_db": [],
+      "HarmonicProfileError_db": [],
+      "SweepSpectralError_db": [],
+      "BroadbandTonalError_db": -27.86928371298723
+    }
+  ],
+  "normalized": {
+    "thd": 1.1026948829350665,
+    "harmonic": 1.1659402302047697,
+    "sweep": 0.017709844774529047
+  },
+  "NormalizedLoss": 0.91732054893781056,
+  "loss_version": "phase_a_loss_v2",
+  "weights": {
+    "harmonic": 0.5,
+    "thd": 0.3,
+    "sweep": 0.2
+  },
+  "converged": false
+}

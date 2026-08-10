@@ -84,16 +84,14 @@ function cfg = config()
     % polynomial captures the symmetric, odd-harmonic behaviour; c1=0.788 is the
     % linear-region gain (incl. Saturn output trim), so drive_k stays 1.0 and
     % output gain stays 0 dB (curve already maps to the reference output scale).
-    % Iter-04 (H2): signpow basis f = sum c_p sign(x)|x|^p, p=1..5, level-balanced
-    % fit. The even-p terms (x|x|, x|x|^3) supply 3rd-harmonic ~A^2 (THD slope 1)
-    % that a pure odd polynomial cannot — cutting the low-level under-distortion.
-    % Fit rel-RMS residual 0.0020 (vs 0.0082 odd-poly); per-level <=0.007.
-    cfg.tracks.subtle_saturation.dof.shaper.type      = 'signpow';
-    cfg.tracks.subtle_saturation.dof.shaper.drive_k   = 1.0;
-    cfg.tracks.subtle_saturation.dof.shaper.bias      = 0.0;
-    cfg.tracks.subtle_saturation.dof.shaper.asymmetry = 0.0;
-    cfg.tracks.subtle_saturation.dof.shaper.powers    = [1 2 3 4 5];
-    cfg.tracks.subtle_saturation.dof.shaper.coeffs    = [0.8484 -0.6008 0.5004 -0.5529 0.2171];
+    cfg.tracks.subtle_saturation.dof.shaper.type       = 'poly';
+    cfg.tracks.subtle_saturation.dof.shaper.drive_k    = 1.0;
+    cfg.tracks.subtle_saturation.dof.shaper.bias       = 0.0;
+    cfg.tracks.subtle_saturation.dof.shaper.asymmetry  = 0.0;
+    % Iter-03 (H2 refit): level-balanced weighting (each tone-battery level equal
+    % say) so near-origin curvature — which sets low-level THD — is not drowned by
+    % high-amplitude samples. c3/c1 rises 1.36->1.54, lifting low-level distortion.
+    cfg.tracks.subtle_saturation.dof.shaper.poly_coeffs = [0.7982 0 -1.226 0 2.585 0 -2.977 0 1.235];
 
     % --- subtle_tube --------------------------------------------------------
     cfg.tracks.subtle_tube = struct();

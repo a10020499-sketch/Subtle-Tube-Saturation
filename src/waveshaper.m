@@ -34,6 +34,18 @@ function y = waveshaper(x, shaper)
             for n = 1:numel(c)
                 y = y + c(n) * u.^n;
             end
+        case 'signpow'
+            % odd basis  f(u) = sum_i coeffs(i) * sign(u) * |u|^powers(i).
+            % Unifies polynomial (odd powers -> u^p) and "odd square-law" terms
+            % (even powers -> u|u|^(p-1)); the latter give 3rd-harmonic ~ A^2,
+            % i.e. THD slope 1, which pure odd polynomials cannot represent (H2,
+            % Iter-4). All terms are odd, so only odd harmonics are produced.
+            p = shaper.powers(:); c = shaper.coeffs(:);
+            su = sign(u); au = abs(u);
+            y = zeros(size(u));
+            for i = 1:numel(p)
+                y = y + c(i) * su .* au.^p(i);
+            end
         case 'softknee'
             % soft-knee limiter-style curve: linear below knee, tanh above
             kn = 0.6;
