@@ -93,7 +93,7 @@ gate, renders the dry set through the coloration core, and calls
 Iteration −1 scaffold is **complete**: directory tree, `config.m`,
 `loop_state.json`, the full `src/` chain, Phase B tools, `.gitignore/.gitattributes`,
 and the four `data/dry/` test signals (regenerated from
-`tools/generateTestSignals.m`, 48 kHz / 24-bit). Both tracks are **blocked on
+`tools/generateTestSignals.m`, 96 kHz / 24-bit). Both tracks are **blocked on
 R1-A** awaiting user Saturn 2 renders. The multiband layer passes its −60 dB
 reconstruction gate. Nothing has been committed to a remote yet (no GitHub repo
 created — see spec §6.1; local git only until the user sets up `origin`).

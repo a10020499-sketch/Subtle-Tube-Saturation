@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "sample_rate_hz": 48000,
+  "sample_rate_hz": 96000,
   "bit_depth": 24,
   "channels": 1,
   "generated_by": "tools/generateTestSignals.m",
@@ -8,7 +8,7 @@
   "calibration_click": {
     "description": "single-sample impulse, identical in every file, for alignment",
     "amplitude": 0.5,
-    "sample_index_1based": 12001
+    "sample_index_1based": 24001
   },
   "level_convention": {
     "tone_battery": "peak dBFS",
@@ -19,345 +19,345 @@
     {
       "name": "01_tone_battery.wav",
       "kind": "tone_battery",
-      "length_samples": 8.088E+6,
+      "length_samples": 1.6176E+7,
       "length_sec": 168.5,
       "steady_analysis_guard_sec": 0.01,
       "segments": [
         {
           "freq_hz": 100,
           "level_dbfs": -24,
-          "start_sample_1based": 24001,
-          "end_sample_1based": 144000
-        },
-        {
-          "freq_hz": 100,
-          "level_dbfs": -20.5,
-          "start_sample_1based": 168001,
+          "start_sample_1based": 48001,
           "end_sample_1based": 288000
         },
         {
           "freq_hz": 100,
-          "level_dbfs": -17,
-          "start_sample_1based": 312001,
-          "end_sample_1based": 432000
-        },
-        {
-          "freq_hz": 100,
-          "level_dbfs": -13.5,
-          "start_sample_1based": 456001,
+          "level_dbfs": -20.5,
+          "start_sample_1based": 336001,
           "end_sample_1based": 576000
         },
         {
           "freq_hz": 100,
-          "level_dbfs": -10.5,
-          "start_sample_1based": 600001,
-          "end_sample_1based": 720000
-        },
-        {
-          "freq_hz": 100,
-          "level_dbfs": -7,
-          "start_sample_1based": 744001,
+          "level_dbfs": -17,
+          "start_sample_1based": 624001,
           "end_sample_1based": 864000
         },
         {
           "freq_hz": 100,
+          "level_dbfs": -13.5,
+          "start_sample_1based": 912001,
+          "end_sample_1based": 1.152E+6
+        },
+        {
+          "freq_hz": 100,
+          "level_dbfs": -10.5,
+          "start_sample_1based": 1.200001E+6,
+          "end_sample_1based": 1.44E+6
+        },
+        {
+          "freq_hz": 100,
+          "level_dbfs": -7,
+          "start_sample_1based": 1.488001E+6,
+          "end_sample_1based": 1.728E+6
+        },
+        {
+          "freq_hz": 100,
           "level_dbfs": -3.5,
-          "start_sample_1based": 888001,
-          "end_sample_1based": 1.008E+6
+          "start_sample_1based": 1.776001E+6,
+          "end_sample_1based": 2.016E+6
         },
         {
           "freq_hz": 100,
           "level_dbfs": 0,
-          "start_sample_1based": 1.032001E+6,
-          "end_sample_1based": 1.152E+6
-        },
-        {
-          "freq_hz": 250,
-          "level_dbfs": -24,
-          "start_sample_1based": 1.176001E+6,
-          "end_sample_1based": 1.296E+6
-        },
-        {
-          "freq_hz": 250,
-          "level_dbfs": -20.5,
-          "start_sample_1based": 1.320001E+6,
-          "end_sample_1based": 1.44E+6
-        },
-        {
-          "freq_hz": 250,
-          "level_dbfs": -17,
-          "start_sample_1based": 1.464001E+6,
-          "end_sample_1based": 1.584E+6
-        },
-        {
-          "freq_hz": 250,
-          "level_dbfs": -13.5,
-          "start_sample_1based": 1.608001E+6,
-          "end_sample_1based": 1.728E+6
-        },
-        {
-          "freq_hz": 250,
-          "level_dbfs": -10.5,
-          "start_sample_1based": 1.752001E+6,
-          "end_sample_1based": 1.872E+6
-        },
-        {
-          "freq_hz": 250,
-          "level_dbfs": -7,
-          "start_sample_1based": 1.896001E+6,
-          "end_sample_1based": 2.016E+6
-        },
-        {
-          "freq_hz": 250,
-          "level_dbfs": -3.5,
-          "start_sample_1based": 2.040001E+6,
-          "end_sample_1based": 2.16E+6
-        },
-        {
-          "freq_hz": 250,
-          "level_dbfs": 0,
-          "start_sample_1based": 2.184001E+6,
+          "start_sample_1based": 2.064001E+6,
           "end_sample_1based": 2.304E+6
         },
         {
-          "freq_hz": 440,
+          "freq_hz": 250,
           "level_dbfs": -24,
-          "start_sample_1based": 2.328001E+6,
-          "end_sample_1based": 2.448E+6
-        },
-        {
-          "freq_hz": 440,
-          "level_dbfs": -20.5,
-          "start_sample_1based": 2.472001E+6,
+          "start_sample_1based": 2.352001E+6,
           "end_sample_1based": 2.592E+6
         },
         {
-          "freq_hz": 440,
-          "level_dbfs": -17,
-          "start_sample_1based": 2.616001E+6,
-          "end_sample_1based": 2.736E+6
-        },
-        {
-          "freq_hz": 440,
-          "level_dbfs": -13.5,
-          "start_sample_1based": 2.760001E+6,
+          "freq_hz": 250,
+          "level_dbfs": -20.5,
+          "start_sample_1based": 2.640001E+6,
           "end_sample_1based": 2.88E+6
         },
         {
-          "freq_hz": 440,
-          "level_dbfs": -10.5,
-          "start_sample_1based": 2.904001E+6,
-          "end_sample_1based": 3.024E+6
-        },
-        {
-          "freq_hz": 440,
-          "level_dbfs": -7,
-          "start_sample_1based": 3.048001E+6,
+          "freq_hz": 250,
+          "level_dbfs": -17,
+          "start_sample_1based": 2.928001E+6,
           "end_sample_1based": 3.168E+6
         },
         {
-          "freq_hz": 440,
-          "level_dbfs": -3.5,
-          "start_sample_1based": 3.192001E+6,
-          "end_sample_1based": 3.312E+6
-        },
-        {
-          "freq_hz": 440,
-          "level_dbfs": 0,
-          "start_sample_1based": 3.336001E+6,
+          "freq_hz": 250,
+          "level_dbfs": -13.5,
+          "start_sample_1based": 3.216001E+6,
           "end_sample_1based": 3.456E+6
         },
         {
-          "freq_hz": 1000,
-          "level_dbfs": -24,
-          "start_sample_1based": 3.480001E+6,
-          "end_sample_1based": 3.6E+6
-        },
-        {
-          "freq_hz": 1000,
-          "level_dbfs": -20.5,
-          "start_sample_1based": 3.624001E+6,
+          "freq_hz": 250,
+          "level_dbfs": -10.5,
+          "start_sample_1based": 3.504001E+6,
           "end_sample_1based": 3.744E+6
         },
         {
-          "freq_hz": 1000,
-          "level_dbfs": -17,
-          "start_sample_1based": 3.768001E+6,
-          "end_sample_1based": 3.888E+6
-        },
-        {
-          "freq_hz": 1000,
-          "level_dbfs": -13.5,
-          "start_sample_1based": 3.912001E+6,
+          "freq_hz": 250,
+          "level_dbfs": -7,
+          "start_sample_1based": 3.792001E+6,
           "end_sample_1based": 4.032E+6
         },
         {
-          "freq_hz": 1000,
-          "level_dbfs": -10.5,
-          "start_sample_1based": 4.056001E+6,
-          "end_sample_1based": 4.176E+6
-        },
-        {
-          "freq_hz": 1000,
-          "level_dbfs": -7,
-          "start_sample_1based": 4.200001E+6,
+          "freq_hz": 250,
+          "level_dbfs": -3.5,
+          "start_sample_1based": 4.080001E+6,
           "end_sample_1based": 4.32E+6
         },
         {
-          "freq_hz": 1000,
-          "level_dbfs": -3.5,
-          "start_sample_1based": 4.344001E+6,
-          "end_sample_1based": 4.464E+6
-        },
-        {
-          "freq_hz": 1000,
+          "freq_hz": 250,
           "level_dbfs": 0,
-          "start_sample_1based": 4.488001E+6,
+          "start_sample_1based": 4.368001E+6,
           "end_sample_1based": 4.608E+6
         },
         {
-          "freq_hz": 2500,
+          "freq_hz": 440,
           "level_dbfs": -24,
-          "start_sample_1based": 4.632001E+6,
-          "end_sample_1based": 4.752E+6
-        },
-        {
-          "freq_hz": 2500,
-          "level_dbfs": -20.5,
-          "start_sample_1based": 4.776001E+6,
+          "start_sample_1based": 4.656001E+6,
           "end_sample_1based": 4.896E+6
         },
         {
-          "freq_hz": 2500,
-          "level_dbfs": -17,
-          "start_sample_1based": 4.920001E+6,
-          "end_sample_1based": 5.04E+6
-        },
-        {
-          "freq_hz": 2500,
-          "level_dbfs": -13.5,
-          "start_sample_1based": 5.064001E+6,
+          "freq_hz": 440,
+          "level_dbfs": -20.5,
+          "start_sample_1based": 4.944001E+6,
           "end_sample_1based": 5.184E+6
         },
         {
-          "freq_hz": 2500,
-          "level_dbfs": -10.5,
-          "start_sample_1based": 5.208001E+6,
-          "end_sample_1based": 5.328E+6
-        },
-        {
-          "freq_hz": 2500,
-          "level_dbfs": -7,
-          "start_sample_1based": 5.352001E+6,
+          "freq_hz": 440,
+          "level_dbfs": -17,
+          "start_sample_1based": 5.232001E+6,
           "end_sample_1based": 5.472E+6
         },
         {
-          "freq_hz": 2500,
-          "level_dbfs": -3.5,
-          "start_sample_1based": 5.496001E+6,
-          "end_sample_1based": 5.616E+6
-        },
-        {
-          "freq_hz": 2500,
-          "level_dbfs": 0,
-          "start_sample_1based": 5.640001E+6,
+          "freq_hz": 440,
+          "level_dbfs": -13.5,
+          "start_sample_1based": 5.520001E+6,
           "end_sample_1based": 5.76E+6
         },
         {
-          "freq_hz": 4000,
-          "level_dbfs": -24,
-          "start_sample_1based": 5.784001E+6,
-          "end_sample_1based": 5.904E+6
-        },
-        {
-          "freq_hz": 4000,
-          "level_dbfs": -20.5,
-          "start_sample_1based": 5.928001E+6,
+          "freq_hz": 440,
+          "level_dbfs": -10.5,
+          "start_sample_1based": 5.808001E+6,
           "end_sample_1based": 6.048E+6
         },
         {
+          "freq_hz": 440,
+          "level_dbfs": -7,
+          "start_sample_1based": 6.096001E+6,
+          "end_sample_1based": 6.336E+6
+        },
+        {
+          "freq_hz": 440,
+          "level_dbfs": -3.5,
+          "start_sample_1based": 6.384001E+6,
+          "end_sample_1based": 6.624E+6
+        },
+        {
+          "freq_hz": 440,
+          "level_dbfs": 0,
+          "start_sample_1based": 6.672001E+6,
+          "end_sample_1based": 6.912E+6
+        },
+        {
+          "freq_hz": 1000,
+          "level_dbfs": -24,
+          "start_sample_1based": 6.960001E+6,
+          "end_sample_1based": 7.2E+6
+        },
+        {
+          "freq_hz": 1000,
+          "level_dbfs": -20.5,
+          "start_sample_1based": 7.248001E+6,
+          "end_sample_1based": 7.488E+6
+        },
+        {
+          "freq_hz": 1000,
+          "level_dbfs": -17,
+          "start_sample_1based": 7.536001E+6,
+          "end_sample_1based": 7.776E+6
+        },
+        {
+          "freq_hz": 1000,
+          "level_dbfs": -13.5,
+          "start_sample_1based": 7.824001E+6,
+          "end_sample_1based": 8.064E+6
+        },
+        {
+          "freq_hz": 1000,
+          "level_dbfs": -10.5,
+          "start_sample_1based": 8.112001E+6,
+          "end_sample_1based": 8.352E+6
+        },
+        {
+          "freq_hz": 1000,
+          "level_dbfs": -7,
+          "start_sample_1based": 8.400001E+6,
+          "end_sample_1based": 8.64E+6
+        },
+        {
+          "freq_hz": 1000,
+          "level_dbfs": -3.5,
+          "start_sample_1based": 8.688001E+6,
+          "end_sample_1based": 8.928E+6
+        },
+        {
+          "freq_hz": 1000,
+          "level_dbfs": 0,
+          "start_sample_1based": 8.976001E+6,
+          "end_sample_1based": 9.216E+6
+        },
+        {
+          "freq_hz": 2500,
+          "level_dbfs": -24,
+          "start_sample_1based": 9.264001E+6,
+          "end_sample_1based": 9.504E+6
+        },
+        {
+          "freq_hz": 2500,
+          "level_dbfs": -20.5,
+          "start_sample_1based": 9.552001E+6,
+          "end_sample_1based": 9.792E+6
+        },
+        {
+          "freq_hz": 2500,
+          "level_dbfs": -17,
+          "start_sample_1based": 9.840001E+6,
+          "end_sample_1based": 1.008E+7
+        },
+        {
+          "freq_hz": 2500,
+          "level_dbfs": -13.5,
+          "start_sample_1based": 1.0128001E+7,
+          "end_sample_1based": 1.0368E+7
+        },
+        {
+          "freq_hz": 2500,
+          "level_dbfs": -10.5,
+          "start_sample_1based": 1.0416001E+7,
+          "end_sample_1based": 1.0656E+7
+        },
+        {
+          "freq_hz": 2500,
+          "level_dbfs": -7,
+          "start_sample_1based": 1.0704001E+7,
+          "end_sample_1based": 1.0944E+7
+        },
+        {
+          "freq_hz": 2500,
+          "level_dbfs": -3.5,
+          "start_sample_1based": 1.0992001E+7,
+          "end_sample_1based": 1.1232E+7
+        },
+        {
+          "freq_hz": 2500,
+          "level_dbfs": 0,
+          "start_sample_1based": 1.1280001E+7,
+          "end_sample_1based": 1.152E+7
+        },
+        {
+          "freq_hz": 4000,
+          "level_dbfs": -24,
+          "start_sample_1based": 1.1568001E+7,
+          "end_sample_1based": 1.1808E+7
+        },
+        {
+          "freq_hz": 4000,
+          "level_dbfs": -20.5,
+          "start_sample_1based": 1.1856001E+7,
+          "end_sample_1based": 1.2096E+7
+        },
+        {
           "freq_hz": 4000,
           "level_dbfs": -17,
-          "start_sample_1based": 6.072001E+6,
-          "end_sample_1based": 6.192E+6
+          "start_sample_1based": 1.2144001E+7,
+          "end_sample_1based": 1.2384E+7
         },
         {
           "freq_hz": 4000,
           "level_dbfs": -13.5,
-          "start_sample_1based": 6.216001E+6,
-          "end_sample_1based": 6.336E+6
+          "start_sample_1based": 1.2432001E+7,
+          "end_sample_1based": 1.2672E+7
         },
         {
           "freq_hz": 4000,
           "level_dbfs": -10.5,
-          "start_sample_1based": 6.360001E+6,
-          "end_sample_1based": 6.48E+6
+          "start_sample_1based": 1.2720001E+7,
+          "end_sample_1based": 1.296E+7
         },
         {
           "freq_hz": 4000,
           "level_dbfs": -7,
-          "start_sample_1based": 6.504001E+6,
-          "end_sample_1based": 6.624E+6
+          "start_sample_1based": 1.3008001E+7,
+          "end_sample_1based": 1.3248E+7
         },
         {
           "freq_hz": 4000,
           "level_dbfs": -3.5,
-          "start_sample_1based": 6.648001E+6,
-          "end_sample_1based": 6.768E+6
+          "start_sample_1based": 1.3296001E+7,
+          "end_sample_1based": 1.3536E+7
         },
         {
           "freq_hz": 4000,
           "level_dbfs": 0,
-          "start_sample_1based": 6.792001E+6,
-          "end_sample_1based": 6.912E+6
+          "start_sample_1based": 1.3584001E+7,
+          "end_sample_1based": 1.3824E+7
         },
         {
           "freq_hz": 8000,
           "level_dbfs": -24,
-          "start_sample_1based": 6.936001E+6,
-          "end_sample_1based": 7.056E+6
+          "start_sample_1based": 1.3872001E+7,
+          "end_sample_1based": 1.4112E+7
         },
         {
           "freq_hz": 8000,
           "level_dbfs": -20.5,
-          "start_sample_1based": 7.080001E+6,
-          "end_sample_1based": 7.2E+6
+          "start_sample_1based": 1.4160001E+7,
+          "end_sample_1based": 1.44E+7
         },
         {
           "freq_hz": 8000,
           "level_dbfs": -17,
-          "start_sample_1based": 7.224001E+6,
-          "end_sample_1based": 7.344E+6
+          "start_sample_1based": 1.4448001E+7,
+          "end_sample_1based": 1.4688E+7
         },
         {
           "freq_hz": 8000,
           "level_dbfs": -13.5,
-          "start_sample_1based": 7.368001E+6,
-          "end_sample_1based": 7.488E+6
+          "start_sample_1based": 1.4736001E+7,
+          "end_sample_1based": 1.4976E+7
         },
         {
           "freq_hz": 8000,
           "level_dbfs": -10.5,
-          "start_sample_1based": 7.512001E+6,
-          "end_sample_1based": 7.632E+6
+          "start_sample_1based": 1.5024001E+7,
+          "end_sample_1based": 1.5264E+7
         },
         {
           "freq_hz": 8000,
           "level_dbfs": -7,
-          "start_sample_1based": 7.656001E+6,
-          "end_sample_1based": 7.776E+6
+          "start_sample_1based": 1.5312001E+7,
+          "end_sample_1based": 1.5552E+7
         },
         {
           "freq_hz": 8000,
           "level_dbfs": -3.5,
-          "start_sample_1based": 7.800001E+6,
-          "end_sample_1based": 7.92E+6
+          "start_sample_1based": 1.5600001E+7,
+          "end_sample_1based": 1.584E+7
         },
         {
           "freq_hz": 8000,
           "level_dbfs": 0,
-          "start_sample_1based": 7.944001E+6,
-          "end_sample_1based": 8.064E+6
+          "start_sample_1based": 1.5888001E+7,
+          "end_sample_1based": 1.6128E+7
         }
       ],
       "level_dbfs_peak": [],
@@ -372,18 +372,18 @@
     {
       "name": "02_log_sweep_moderate_-18dBFS.wav",
       "kind": "log_sweep_farina",
-      "length_samples": 612001,
-      "length_sec": 12.750020833333334,
+      "length_samples": 1.224001E+6,
+      "length_sec": 12.750010416666667,
       "steady_analysis_guard_sec": [],
       "segments": [],
       "level_dbfs_peak": -18,
-      "sweep_start_sample_1based": 24001,
-      "sweep_end_sample_1based": 600000,
+      "sweep_start_sample_1based": 48001,
+      "sweep_end_sample_1based": 1.2E+6,
       "farina": {
         "f1_hz": 20,
         "f2_hz": 20000,
         "duration_sec": 12,
-        "fs_hz": 48000,
+        "fs_hz": 96000,
         "method": "farina_exponential_sine_sweep",
         "L": 1.7371779276130073,
         "fade_sec": 0.02
@@ -396,18 +396,18 @@
     {
       "name": "03_log_sweep_hot_-3dBFS.wav",
       "kind": "log_sweep_farina",
-      "length_samples": 612001,
-      "length_sec": 12.750020833333334,
+      "length_samples": 1.224001E+6,
+      "length_sec": 12.750010416666667,
       "steady_analysis_guard_sec": [],
       "segments": [],
       "level_dbfs_peak": -3,
-      "sweep_start_sample_1based": 24001,
-      "sweep_end_sample_1based": 600000,
+      "sweep_start_sample_1based": 48001,
+      "sweep_end_sample_1based": 1.2E+6,
       "farina": {
         "f1_hz": 20,
         "f2_hz": 20000,
         "duration_sec": 12,
-        "fs_hz": 48000,
+        "fs_hz": 96000,
         "method": "farina_exponential_sine_sweep",
         "L": 1.7371779276130073,
         "fade_sec": 0.02
@@ -420,7 +420,7 @@
     {
       "name": "04_pink_noise_broadband_-12dBFS.wav",
       "kind": "pink_noise",
-      "length_samples": 324000,
+      "length_samples": 648000,
       "length_sec": 6.75,
       "steady_analysis_guard_sec": [],
       "segments": [],
@@ -429,9 +429,9 @@
       "sweep_end_sample_1based": [],
       "farina": [],
       "level_target_rms_dbfs": -12,
-      "achieved_rms_dbfs": -13.319135556251183,
+      "achieved_rms_dbfs": -13.519859676130473,
       "achieved_peak_dbfs": -0.49999999999999989,
-      "noise_start_sample_1based": 24001
+      "noise_start_sample_1based": 48001
     }
   ]
 }

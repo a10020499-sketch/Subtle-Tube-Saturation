@@ -26,7 +26,7 @@ function cfg = config()
 
     % ---- global audio ------------------------------------------------------
     cfg.audio = struct();
-    cfg.audio.fs        = 48000;     % must match the dry manifest sample rate
+    cfg.audio.fs        = 96000;     % must match the dry manifest sample rate
     cfg.audio.bit_depth = 24;
 
     % ---- dry test-signal design (mirror of generateTestSignals; informational) ----
