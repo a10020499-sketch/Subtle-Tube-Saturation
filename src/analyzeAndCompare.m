@@ -39,6 +39,12 @@ function metrics = analyzeAndCompare(track, iterId)
             case 'tone_battery'
                 segs = manifest.files(i).segments;
                 guard = round(manifest.files(i).steady_analysis_guard_sec*fs) + round(0.05*fs);
+                % Floor gates (phase_a_loss_v2): comparing harmonics/THD that are
+                % at the measurement noise floor in BOTH signals is meaningless —
+                % floor-vs-floor dB differences inject tens of dB of phantom error.
+                % Only score distortion that is actually present.
+                THD_REF_FLOOR_DB = -70;   % skip segments whose ref THD is inaudible/absent
+                HARM_FLOOR_DB    = -80;    % harmonic counts only if either side > this (rel fund)
                 te = []; he = [];
                 for s = 1:numel(segs)
                     a = segs(s).start_sample_1based + guard;
@@ -46,10 +52,19 @@ function metrics = analyzeAndCompare(track, iterId)
                     f0 = segs(s).freq_hz;
                     [thO, hO] = measureTHD(yout(a:b),    f0, fs, 6);
                     [thR, hR] = measureTHD(yref_al(a:b), f0, fs, 6);
-                    te(end+1) = abs(db(thO) - db(thR)); %#ok<AGROW>
-                    hmask = ~isnan(hO) & ~isnan(hR);
-                    if any(hmask)
-                        he(end+1) = sqrt(mean((db(hO(hmask)) - db(hR(hmask))).^2)); %#ok<AGROW>
+                    if db(thR) > THD_REF_FLOOR_DB
+                        te(end+1) = abs(db(thO) - db(thR)); %#ok<AGROW>
+                    end
+                    % harmonics H2..H6, only where present above floor in either side
+                    he_seg = [];
+                    for n = 2:6
+                        if isnan(hO(n)) || isnan(hR(n)); continue; end
+                        if max(db(hO(n)), db(hR(n))) > HARM_FLOOR_DB
+                            he_seg(end+1) = db(hO(n)) - db(hR(n)); %#ok<AGROW>
+                        end
+                    end
+                    if ~isempty(he_seg)
+                        he(end+1) = sqrt(mean(he_seg.^2)); %#ok<AGROW>
                     end
                 end
                 thdErrs = te; harmErrs = he;

@@ -125,9 +125,6 @@ function cfg = config()
 
     % ---- Phase A NormalizedLoss weights (R-Loss, versioned) ----------------
     cfg.loss = struct();
-    % v2 (Iter-02): added noise-floor gates in analyzeAndCompare so absent
-    % harmonics / inaudible THD are not scored as phantom floor-vs-floor dB error
-    % (HARM_FLOOR_DB=-80, THD_REF_FLOOR_DB=-70). v1 and v2 Loss are NOT comparable.
-    cfg.loss.loss_version = 'phase_a_loss_v2';
+    cfg.loss.loss_version = 'phase_a_loss_v1';
     cfg.loss.weights = struct('harmonic', 0.5, 'thd', 0.3, 'sweep', 0.2);
 end
