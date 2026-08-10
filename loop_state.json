@@ -6,9 +6,10 @@
       "phase": "saturn_matching",
       "current_iteration": 0,
       "max_iterations": 20,
-      "best_metrics": [],
-      "hypotheses_tested": [],
+      "best_metrics": {"iteration": 0, "THD_error_db": 14.32, "HarmonicProfileError_db": 34.95, "SweepSpectralError_db": -32.85, "NormalizedLoss": 13.08, "loss_version": "phase_a_loss_v1"},
+      "hypotheses_tested": ["baseline"],
       "hypotheses_pending": [
+        "H4",
         "H2",
         "H3",
         "H6",
@@ -16,7 +17,7 @@
         "H9",
         "H1"
       ],
-      "status": "awaiting_reference_assets",
+      "status": "ready",
       "phase_a_exit": [],
       "voice_stage": [],
       "voice_signoff": {
@@ -29,9 +30,10 @@
       "phase": "saturn_matching",
       "current_iteration": 0,
       "max_iterations": 20,
-      "best_metrics": [],
-      "hypotheses_tested": [],
+      "best_metrics": {"iteration": 0, "THD_error_db": 4.96, "HarmonicProfileError_db": 28.03, "SweepSpectralError_db": -25.52, "NormalizedLoss": 8.60, "loss_version": "phase_a_loss_v1"},
+      "hypotheses_tested": ["baseline"],
       "hypotheses_pending": [
+        "H4",
         "H2",
         "H3",
         "H6",
@@ -41,7 +43,7 @@
         "H1",
         "H7"
       ],
-      "status": "awaiting_reference_assets",
+      "status": "ready",
       "phase_a_exit": [],
       "voice_stage": [],
       "voice_signoff": {
