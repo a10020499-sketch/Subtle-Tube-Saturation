@@ -44,6 +44,38 @@ real plug-in behaviour, not measurement floor.
 - tube: fit the symmetric part first, then set the even/odd balance (H3) to match
   the measured H2/H3 ratio and its growth with level; only then probe H8.
 
+## subtle_tube — static-vs-dynamic (Iter-1 diagnostic)
+
+Unlike Subtle Saturation, Subtle Tube is **not** a clean static curve:
+
+- A general polynomial (even+odd, order 7, level-balanced) recovers the transfer
+  curve with only 4.5 % rel-RMS residual (vs 0.2 % for saturation), and returns
+  near-zero even-power coefficients despite the reference clearly having strong
+  even harmonics — i.e. a memoryless asymmetric curve cannot explain the data.
+- The input→output scatter shows **hysteresis**: at 0 dBFS/250 Hz the output on a
+  rising edge differs from a falling edge at the same input by ~2 % of range.
+  Even a rich static basis (order 7 + x|x| + x|x|³) leaves 4 % residual at a
+  single level.
+
+### H6 (linear filter) vs H8 (dynamic bias) discriminator
+
+Loop width (rising−falling output at ±0.5·A, as % of output range):
+
+| level @250 Hz | loop % | H2 |   | freq @0 dBFS | loop % | H2 |
+|---|---|---|---|---|---|---|
+| −20.5 | 0.36 | −43.5 | | 100 Hz | 1.32 | −30.8 |
+| −13.5 | 0.56 | −37.8 | | 250 Hz | 2.04 | −30.3 |
+| −7 | 1.01 | −33.5 | | 1000 Hz | 0.76 | −29.9 |
+| 0 | 2.04 | −30.3 | | 4000 Hz | 0.55 | −30.2 |
+
+**The loop grows ~6× with level** at fixed frequency. A linear filter (H6) would
+give a level-independent loop-%-of-range (it scales with amplitude), so the
+memory is **nonlinear → H8**. The loop peaks near 250 Hz and falls at HF (a
+follower time-constant signature, not a static filter's monotonic phase), and H2
+is frequency-independent. Conclusion: Subtle Tube = an **asymmetric static
+nonlinearity with an envelope-driven bias drift** (H8). W-H linear EQ is not the
+primary mechanism (though a small static tone EQ is not excluded).
+
 ## Tooling
 
 `tools/fitDrive.m` — fast static-curve `k` fit from the reference THD-vs-level

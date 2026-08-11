@@ -35,8 +35,9 @@ function out = recoverCurve(track, basis, order, probeFreq, weightMode)
     ref=subsampleAlign(ref,dry,m.calibration_click.sample_index_1based,fs);
 
     switch lower(basis)
-        case 'oddpoly'; powers = 1:2:order;
-        case 'signpow'; powers = 1:order;
+        case 'oddpoly'; powers = 1:2:order;       % odd integer powers of x
+        case 'genpoly'; powers = 1:order;         % all integer powers (even+odd -> asym/tube)
+        case 'signpow'; powers = 1:order;         % sign(x)|x|^p (all odd functions)
         otherwise; error('recoverCurve:basis','unknown basis "%s"',basis);
     end
 

@@ -24,17 +24,15 @@
     },
     "subtle_tube": {
       "phase": "saturn_matching",
-      "current_iteration": 0,
+      "current_iteration": 1,
       "max_iterations": 20,
       "best_metrics": {"iteration": 0, "THD_error_db": 4.96, "HarmonicProfileError_db": 28.03, "SweepSpectralError_db": -25.52, "NormalizedLoss": 8.60, "loss_version": "phase_a_loss_v1"},
-      "hypotheses_tested": ["baseline"],
+      "hypotheses_tested": ["baseline", "H2-static-insufficient", "H6-not-primary"],
       "hypotheses_pending": [
-        "H4",
-        "H2",
-        "H3",
-        "H6",
-        "H5",
         "H8",
+        "H3",
+        "H2",
+        "H5",
         "H9",
         "H1",
         "H7"
