@@ -32,7 +32,11 @@ function y = processSignal(x, dof, fs, track)
     if strcmpi(track, 'subtle_tube') && isfield(dof,'dynamic_bias') ...
             && dof.dynamic_bias.enabled && dof.dynamic_bias.depth ~= 0
         biasEnv = envelopeFollow(vo, fs*L, dof.dynamic_bias.attack_ms, dof.dynamic_bias.release_ms);
-        shaper.bias = shaper.bias + dof.dynamic_bias.depth * biasEnv;  % per-sample bias vector
+        g = 1;
+        if isfield(dof.dynamic_bias,'gamma'); g = dof.dynamic_bias.gamma; end
+        % compressive bias-vs-envelope mapping (gamma<1 lifts low-level bias so the
+        % even harmonics fall slower than A, matching the Subtle mode; H8, Iter-3)
+        shaper.bias = shaper.bias + dof.dynamic_bias.depth * biasEnv.^g;  % per-sample bias vector
     end
     wo = waveshaper(vo, shaper);
 

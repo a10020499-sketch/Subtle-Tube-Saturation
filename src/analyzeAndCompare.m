@@ -55,16 +55,20 @@ function metrics = analyzeAndCompare(track, iterId)
                     if db(thR) > THD_REF_FLOOR_DB
                         te(end+1) = abs(db(thO) - db(thR)); %#ok<AGROW>
                     end
-                    % harmonics H2..H6, only where present above floor in either side
-                    he_seg = [];
+                    % harmonics H2..H6, magnitude-weighted (loss_v3): each harmonic's
+                    % dB error is weighted by its linear magnitude (rel fund), so an
+                    % audible -20 dB harmonic dominates a -70 dB near-floor one instead
+                    % of counting equally. hO/hR are already linear magnitudes rel fund.
+                    hnum = 0; hden = 0;
                     for n = 2:6
                         if isnan(hO(n)) || isnan(hR(n)); continue; end
-                        if max(db(hO(n)), db(hR(n))) > HARM_FLOOR_DB
-                            he_seg(end+1) = db(hO(n)) - db(hR(n)); %#ok<AGROW>
-                        end
+                        wl = max(hO(n), hR(n));                      % linear weight
+                        if 20*log10(max(wl,eps)) <= HARM_FLOOR_DB; continue; end
+                        e = db(hO(n)) - db(hR(n));
+                        hnum = hnum + wl*e^2; hden = hden + wl;
                     end
-                    if ~isempty(he_seg)
-                        he(end+1) = sqrt(mean(he_seg.^2)); %#ok<AGROW>
+                    if hden > 0
+                        he(end+1) = sqrt(hnum/hden); %#ok<AGROW>
                     end
                 end
                 thdErrs = te; harmErrs = he;

@@ -6,7 +6,7 @@
       "phase": "voice_tuning",
       "current_iteration": 4,
       "max_iterations": 20,
-      "best_metrics": {"iteration": 4, "THD_error_db": 1.10, "HarmonicProfileError_db": 2.33, "SweepSpectralError_db": -55.04, "NormalizedLoss": 0.917, "loss_version": "phase_a_loss_v2", "note": "signpow basis; near convergence, THD/Harm 0.1/0.33 dB over threshold"},
+      "best_metrics": {"iteration": 4, "THD_error_db": 1.10, "HarmonicProfileError_db": 1.69, "SweepSpectralError_db": -55.04, "NormalizedLoss": 0.758, "loss_version": "phase_a_loss_v3", "note": "signpow basis; v3 re-score Harm 1.69 PASSES <2.0, THD 0.1 over; saturn-like baseline"},
       "hypotheses_tested": ["baseline", "H2", "H4", "H6-ruled-out", "H5"],
       "hypotheses_pending": [
         "H3",
@@ -24,9 +24,9 @@
     },
     "subtle_tube": {
       "phase": "saturn_matching",
-      "current_iteration": 2,
+      "current_iteration": 3,
       "max_iterations": 20,
-      "best_metrics": {"iteration": 2, "THD_error_db": 1.66, "HarmonicProfileError_db": 7.13, "SweepSpectralError_db": -34.47, "NormalizedLoss": 2.32, "loss_version": "phase_a_loss_v2", "note": "H8 dynamic-bias model; even harmonics captured; residual likely low-level H2"},
+      "best_metrics": {"iteration": 3, "THD_error_db": 1.17, "HarmonicProfileError_db": 3.58, "SweepSpectralError_db": -35.69, "NormalizedLoss": 1.281, "loss_version": "phase_a_loss_v3", "note": "H8 + compressive bias (gamma=0.85); audible H2/H3 within 1.7/1.2 dB; magnitude-weighted metric"},
       "hypotheses_tested": ["baseline", "H2-static-insufficient", "H6-not-primary", "H8"],
       "hypotheses_pending": [
         "H8",

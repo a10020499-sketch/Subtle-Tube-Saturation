@@ -24,17 +24,18 @@ function out = fitTube()
         [Rf(s),Rh(s,:)]=harmset(ref(a:b),F(s),fs);
     end
 
-    % --- optimise [c1 c2 c3 c4 c5 depth] to match fund gain + harmonics
-    p0=[0.85 -0.30 0.30 -0.30 0.15 0.15];
+    % --- optimise [c1 c2 c3 c4 c5 depth gamma] to match harmonics (H2..H5).
+    % gamma<1 is the compressive bias-vs-envelope mapping (Iter-3) that lifts
+    % low-level even harmonics so H2 falls slower than A, as the reference does.
+    p0=[0.9586 -0.7593 -0.3636 1.2168 -0.6519 0.0615 0.65];
     cost=@(p) tubeCost(p, A, F, Rf, Rh, fs);
-    opt=optimset('Display','off','MaxFunEvals',4000,'MaxIter',4000,'TolFun',1e-4,'TolX',1e-4);
+    opt=optimset('Display','off','MaxFunEvals',6000,'MaxIter',6000,'TolFun',1e-4,'TolX',1e-4);
     [p,fval]=fminsearch(cost, p0, opt);
 
-    out=struct('basis','signpow','powers',[1 2 3 4 5],'coeffs',p(1:5),'depth',p(6),'cost',fval);
-    fprintf('[fitTube] cost=%.3f  depth=%.4f\n  coeffs=',fval,p(6)); fprintf(' %+.4f',p(1:5)); fprintf('\n');
-    % report fit quality at 1 kHz
+    out=struct('basis','signpow','powers',[1 2 3 4 5],'coeffs',p(1:5),'depth',p(6),'gamma',p(7),'cost',fval);
+    fprintf('[fitTube] cost=%.3f  depth=%.4f gamma=%.3f\n  coeffs=',fval,p(6),p(7)); fprintf(' %+.4f',p(1:5)); fprintf('\n');
     fprintf('  check @1kHz (model H2/H3 vs ref):\n');
-    for L=[-20.5 -7 0]
+    for L=[-24 -13.5 -7 0]
         s=find(F==1000 & abs(20*log10(A)-L)<0.3,1);
         [~,mh]=modelHarm(p,A(s),1000,fs);
         fprintf('    %+5.1f dBFS: H2 %6.1f/%6.1f  H3 %6.1f/%6.1f\n',L,mh(1),Rh(s,1),mh(2),Rh(s,2));
@@ -42,23 +43,23 @@ function out = fitTube()
 end
 
 function J=tubeCost(p, A, F, Rf, Rh, fs)
+    wH=[3 3 0.5 0.3];   % weight H2,H3 (dominant tube tone) above H4,H5
     J=0;
     for s=1:numel(A)
-        [mf,mh]=modelHarm(p,A(s),F(s),fs);
-        J = J + 4*(20*log10(max(mf,eps))-20*log10(max(Rf(s),eps)))^2;   % fund gain match
+        [~,mh]=modelHarm(p,A(s),F(s),fs);
         for h=1:4
             if ~isnan(Rh(s,h)) && max(mh(h),Rh(s,h))>-80
-                J = J + (mh(h)-Rh(s,h))^2;
+                J = J + wH(h)*(mh(h)-Rh(s,h))^2;
             end
         end
     end
 end
 
 function [fundAmp,hdb]=modelHarm(p,A,f0,fs)
-    c=p(1:5); depth=p(6); os=4; fso=fs*os;
+    c=p(1:5); depth=p(6); gamma=p(7); os=4; fso=fs*os;
     ncyc=40; N=round(ncyc*fso/f0); t=(0:N-1)'/fso;
     x=A*sin(2*pi*f0*t);
-    b=depth*(2*A/pi);                       % steady envelope-driven bias
+    b=depth*(2*A/pi)^gamma;                 % steady compressive envelope-driven bias
     u=x+b; y=sign(u).*0; for i=1:5; y=y+c(i)*sign(u).*abs(u).^i; end
     y=y-mean(y);
     % measure fund + H2..H5 at base-rate observable range

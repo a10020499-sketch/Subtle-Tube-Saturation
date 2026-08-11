@@ -1,18 +1,18 @@
 {
   "track": "subtle_tube",
-  "iteration": 2,
-  "THD_error_db": 1.6568816530491373,
-  "HarmonicProfileError_db": 3.7676846567093643,
-  "SweepSpectralError_db": -34.469805332902581,
-  "BroadbandTonalError_db": -17.474380235867574,
+  "iteration": 3,
+  "THD_error_db": 1.1745503352672908,
+  "HarmonicProfileError_db": 3.581306476007323,
+  "SweepSpectralError_db": -35.694753202121362,
+  "BroadbandTonalError_db": -17.480061761559341,
   "alignment_offset_samples": 0,
-  "alignment_offset_fractional": 0.0187839006000664,
+  "alignment_offset_fractional": 0.01869726992861339,
   "AlignmentOffsetStability_samples": 0,
   "per_file": [
     {
       "name": "01_tone_battery.wav",
-      "THD_error_db": 1.6568816530491373,
-      "HarmonicProfileError_db": 3.7676846567093643,
+      "THD_error_db": 1.1745503352672908,
+      "HarmonicProfileError_db": 3.581306476007323,
       "SweepSpectralError_db": [],
       "BroadbandTonalError_db": []
     },
@@ -20,14 +20,14 @@
       "name": "02_log_sweep_moderate_-18dBFS.wav",
       "THD_error_db": [],
       "HarmonicProfileError_db": [],
-      "SweepSpectralError_db": -40.710528047157752,
+      "SweepSpectralError_db": -42.161635613308512,
       "BroadbandTonalError_db": []
     },
     {
       "name": "03_log_sweep_hot_-3dBFS.wav",
       "THD_error_db": [],
       "HarmonicProfileError_db": [],
-      "SweepSpectralError_db": -28.229082618647418,
+      "SweepSpectralError_db": -29.227870790934219,
       "BroadbandTonalError_db": []
     },
     {
@@ -35,15 +35,15 @@
       "THD_error_db": [],
       "HarmonicProfileError_db": [],
       "SweepSpectralError_db": [],
-      "BroadbandTonalError_db": -17.474380235867574
+      "BroadbandTonalError_db": -17.480061761559341
     }
   ],
   "normalized": {
-    "thd": 1.6568816530491373,
-    "harmonic": 1.8838423283546821,
-    "sweep": 0.18902085938362645
+    "thd": 1.1745503352672908,
+    "harmonic": 1.7906532380036615,
+    "sweep": 0.16415810871179279
   },
-  "NormalizedLoss": 1.4767898319688075,
+  "NormalizedLoss": 1.2805233413243766,
   "loss_version": "phase_a_loss_v3",
   "weights": {
     "harmonic": 0.5,
