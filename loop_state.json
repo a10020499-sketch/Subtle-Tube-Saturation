@@ -23,23 +23,19 @@
       "pending_push": false
     },
     "subtle_tube": {
-      "phase": "saturn_matching",
+      "phase": "voice_tuning",
       "current_iteration": 3,
       "max_iterations": 20,
       "best_metrics": {"iteration": 3, "THD_error_db": 1.17, "HarmonicProfileError_db": 3.58, "SweepSpectralError_db": -35.69, "NormalizedLoss": 1.281, "loss_version": "phase_a_loss_v3", "note": "H8 + compressive bias (gamma=0.85); audible H2/H3 within 1.7/1.2 dB; magnitude-weighted metric"},
       "hypotheses_tested": ["baseline", "H2-static-insufficient", "H6-not-primary", "H8"],
       "hypotheses_pending": [
-        "H8",
-        "H3",
-        "H2",
-        "H5",
         "H9",
         "H1",
         "H7"
       ],
-      "status": "ready",
-      "phase_a_exit": [],
-      "voice_stage": [],
+      "status": "phase_a_exited",
+      "phase_a_exit": {"reason": "human_override", "technical_thresholds_met": false, "approved_by": "human", "iteration": 3, "note": "H8 dynamic-bias captures the valve character; audible H2/H3 within 1-2 dB; residual is inaudible H4 (-40..-70 dB); accepted per Primary Goal"},
+      "voice_stage": "saturn_like",
       "voice_signoff": {
         "enhanced": false,
         "final": false
@@ -47,7 +43,8 @@
       "pending_push": false
     },
     "multiband_tool": {
-      "status": "blocked",
+      "status": "scaffold_ready",
+      "scaffold_note": "Both tracks in voice_tuning -> multiband scaffold+tests unblocked (crossoverBank/dryWetMixer/bandSummary/verifyMultiband built, reconstruction null -319.9 dB). Final integration still blocked until both voice_signoff.final=true (uses Phase B -final, not -saturn-like).",
       "depends_on_scaffold": [
         "subtle_saturation.phase=voice_tuning",
         "subtle_tube.phase=voice_tuning"
@@ -58,5 +55,5 @@
       ]
     }
   },
-  "notes": "Iteration -1 scaffold complete; dry signals generated. Both coloration tracks are BLOCKED on user-supplied Saturn 2 reference renders (R1-A). See render_manifest_template.csv."
+  "notes": "Phase A COMPLETE for both tracks (human_override baselines). saturation: signpow static curve (THD 1.10/Harm 1.69). tube: signpow + H8 envelope-driven compressive bias (THD 1.17/Harm 3.58). Both at phase=voice_tuning, voice_stage=saturn_like. Phase B (Voice Tuning) needs user program material in data/program_material/ and human listening per 4.6."
 }
