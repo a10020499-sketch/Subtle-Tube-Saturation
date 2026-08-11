@@ -24,10 +24,10 @@
     },
     "subtle_tube": {
       "phase": "saturn_matching",
-      "current_iteration": 1,
+      "current_iteration": 2,
       "max_iterations": 20,
-      "best_metrics": {"iteration": 0, "THD_error_db": 4.96, "HarmonicProfileError_db": 28.03, "SweepSpectralError_db": -25.52, "NormalizedLoss": 8.60, "loss_version": "phase_a_loss_v1"},
-      "hypotheses_tested": ["baseline", "H2-static-insufficient", "H6-not-primary"],
+      "best_metrics": {"iteration": 2, "THD_error_db": 1.66, "HarmonicProfileError_db": 7.13, "SweepSpectralError_db": -34.47, "NormalizedLoss": 2.32, "loss_version": "phase_a_loss_v2", "note": "H8 dynamic-bias model; even harmonics captured; residual likely low-level H2"},
+      "hypotheses_tested": ["baseline", "H2-static-insufficient", "H6-not-primary", "H8"],
       "hypotheses_pending": [
         "H8",
         "H3",

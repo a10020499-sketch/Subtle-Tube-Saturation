@@ -12,8 +12,8 @@ function y = waveshaper(x, shaper)
     u = k * x;
 
     % Even/Odd Blend pre-conditioning: DC bias + half-wave asymmetric gain.
-    if isfield(shaper,'bias') && shaper.bias ~= 0
-        u = u + shaper.bias;
+    if isfield(shaper,'bias') && any(shaper.bias(:) ~= 0)
+        u = u + shaper.bias;   % bias may be scalar or a per-sample vector (dynamic bias, H8)
     end
     if isfield(shaper,'asymmetry') && shaper.asymmetry ~= 0
         a = shaper.asymmetry;
