@@ -51,6 +51,8 @@ gate, renders the dry set through the coloration core, and calls
 | `src/dynamicEnergyControl.m` | H9 umbrella; Phase A bypass, soft-compression implemented |
 | `src/crossoverBank.m` | LR4 perfect-reconstruction split (multiband layer) |
 | `src/dryWetMixer.m` / `src/bandSummary.m` | Per-band blend + summation |
+| `src/multibandProcess.m` | Top-level multiband tool (crossover→per-band color/drywet→sum) |
+| `src/runMultiband.m` | File entry point for the multiband tool |
 | `src/analyzeAndCompare.m` | THD / harmonic / sweep / broadband metrics + NormalizedLoss |
 | `src/harmonicSeparation.m` | Farina sweep harmonic deconvolution |
 | `src/subsampleAlign.m` | Integer + fractional-sample alignment (R4) |
@@ -90,10 +92,27 @@ gate, renders the dry set through the coloration core, and calls
 
 ## Current state — read this before resuming
 
-Iteration −1 scaffold is **complete**: directory tree, `config.m`,
-`loop_state.json`, the full `src/` chain, Phase B tools, `.gitignore/.gitattributes`,
-and the four `data/dry/` test signals (regenerated from
-`tools/generateTestSignals.m`, 96 kHz / 24-bit). Both tracks are **blocked on
-R1-A** awaiting user Saturn 2 renders. The multiband layer passes its −60 dB
-reconstruction gate. Nothing has been committed to a remote yet (no GitHub repo
-created — see spec §6.1; local git only until the user sets up `origin`).
+**Phase A COMPLETE for both tracks** (human_override saturn-like baselines, tagged
+`subtle_saturation-v1.0-saturn-baseline-approved`, `subtle_tube-v1.0-saturn-baseline-approved`).
+Remote: `github.com/a10020499-sketch/Subtle-Tube-Saturation` (public, LFS). Dry set
+is 96 kHz.
+
+- **subtle_saturation**: static `signpow` odd curve (the `x|x|` square-law term is
+  the key to low-level THD; W-H EQ H6 not needed). THD 1.10 / Harm 1.69 / Sweep −55.
+- **subtle_tube**: `signpow` base + **H8 envelope-driven compressive bias**
+  (γ=0.85). Tube memory is nonlinear (loop grows with level), not a linear filter.
+  THD 1.17 / Harm 3.58.
+- Metric evolved v1→v3 (floor gates, then magnitude-weighted HarmonicProfileError).
+- Both tracks `phase=voice_tuning`, `voice_stage=saturn_like`.
+- **Multiband tool scaffold complete**: `multibandProcess`/`runMultiband` +
+  expanded `verifyMultiband` (all §5.3 gates pass; bypass recon −185 dB). Default
+  4 bands, crossovers 250/1k/4k Hz (config 2–6). Final integration still gated on
+  both `voice_signoff.final`.
+
+**Next = Phase B (Voice Tuning, §4.6)**: needs user program material in
+`data/program_material/` (vocal/bass/drumbus/mixbus) + human loudness-matched
+listening. Saturn 2 is frozen (R-ReferenceFreeze).
+
+Extra tooling beyond spec: `tools/fitDrive.m`, `tools/recoverCurve.m`
+(basis oddpoly/genpoly/signpow), `tools/fitTube.m` (H8 fit),
+`src/multibandProcess.m`, `src/runMultiband.m`.

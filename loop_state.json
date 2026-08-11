@@ -43,8 +43,8 @@
       "pending_push": false
     },
     "multiband_tool": {
-      "status": "scaffold_ready",
-      "scaffold_note": "Both tracks in voice_tuning -> multiband scaffold+tests unblocked (crossoverBank/dryWetMixer/bandSummary/verifyMultiband built, reconstruction null -319.9 dB). Final integration still blocked until both voice_signoff.final=true (uses Phase B -final, not -saturn-like).",
+      "status": "scaffold_complete",
+      "scaffold_note": "Multiband scaffold built & verified: multibandProcess + runMultiband + verifyMultiband (all 5.3 gates pass: bypass recon -185dB, Wet=0/100 boundaries -168/-166dB, mixed-mode click-free). Default 4 bands, crossovers 250/1k/4k Hz (config 2-6). Uses saturn-like cores for now. Final voice integration still blocked until both voice_signoff.final=true (switches to Phase B -final). Note: hot input can clip -> output gain-staging is a Phase B/tool-design item.",
       "depends_on_scaffold": [
         "subtle_saturation.phase=voice_tuning",
         "subtle_tube.phase=voice_tuning"
