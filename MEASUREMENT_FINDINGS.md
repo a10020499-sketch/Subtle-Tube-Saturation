@@ -76,6 +76,47 @@ is frequency-independent. Conclusion: Subtle Tube = an **asymmetric static
 nonlinearity with an envelope-driven bias drift** (H8). W-H linear EQ is not the
 primary mechanism (though a small static tone EQ is not excluded).
 
+## Phase B — the "harsh / fizzy highs" investigation (voice iter 01)
+
+### What the fizz is not
+- **Not aliasing.** −130 dB alias energy for 2–8 kHz tones, −70 dB at 11 kHz, and
+  oversampling ×4 differs from an ×32 gold reference by −74.8 dB on real EDM.
+  (The §3.6 mapping table names aliasing first for this description; measuring it
+  first is exactly the caveat that table carries.)
+- **Not a modelling error.** Per octave band on pink noise the model tracks the
+  Saturn reference within 0.02–0.04 dB. The character is Saturn's own, faithfully
+  reproduced — so R-ReferenceFreeze applies and deviating is the intended move.
+- **Not HF harmonic generation.** At 48 kHz a single 8 kHz tone through an
+  odd-only curve produces no in-band harmonics at all (H2 ≈ 0, H3 at Nyquist).
+
+### What it is
+Intermodulation between simultaneous HF partials — inharmonic products, which is
+what "fizzy/prickly" describes. Cured by keeping HF out of the nonlinearity.
+
+### Independent review — what survived and what did not
+A four-way independent analysis (metric critique / mechanism ranking / fix design
+/ adversarial) was run against this work. Outcomes, each settled by measurement:
+
+| review claim | verdict |
+|---|---|
+| `smooth_eps` branch is broken — it smooths p=1 too, collapsing `c1·u` to a dead zone | **CONFIRMED, fixed.** Rewritten as `Σ c_p·u·(u²+ε²)^((p−1)/2)`, exact for p=1 |
+| The two-tone IMD figure overstates the split's benefit (both tones sit above the crossover) | **CONFIRMED.** Honest figure is the projection residual: 6–18 dB, not 50 dB. Headline numbers already used the residual |
+| Use a true LR4 pair instead of the telescoping complementary split | **REJECTED.** A true pair sums to an allpass: measured 39.65 dB of comb ripple through a 50 % dry/wet blend versus 0.00 dB for the complementary form. That would wreck the multiband layer's per-band Dry/Wet — a constraint the review did not weigh. Kept complementary; `split_type='lr4'` remains available |
+| The complementary form brightens 2–4 kHz by +2.36 dB | **REFUTED.** Measured +0.21…+0.30 dB. The review's figure came from a reproduction without `gain_match`; the shipped path has always had it |
+| Saturated path vs clean path are misaligned by the resample round trip | **REFUTED.** Measured path delay 0 samples |
+| Eval tool and production chain diverge (`runChain` added `hi` at unity) | **CONFIRMED, fixed.** `runChain` now calls `processSignal` itself |
+| β partial drive (let a fraction of HF still saturate) | **ADOPTED** as a continuous control; β = 0 is the hard split, β = 1 the baseline |
+
+Residual note: the linearised null sits at −18.3 dB rather than −60 dB, and the
+16–24 kHz row explains it — the unsplit reference loses 1.07 dB up there to the
+resample anti-alias rolloff while the split's clean path bypasses it. The
+difference is above 16 kHz and makes the split *more* transparent, not less.
+
+### Gates added
+`src/verifySplit.m` (null with the waveshaper linearised, effective-EQ tilt,
+path delay, dry/wet coherence) and `tools/regressionCheck.m` (frozen Phase A
+baselines must re-render bit-identically under any Phase B change).
+
 ## Tooling
 
 `tools/fitDrive.m` — fast static-curve `k` fit from the reference THD-vs-level

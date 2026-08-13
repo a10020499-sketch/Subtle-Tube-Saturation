@@ -18,14 +18,28 @@ function y = processSignal(x, dof, fs, track)
     % is untouched. The clean high band is scaled by the chain's small-signal gain
     % so the linear response stays flat (transparent) rather than tilting bright.
     if isfield(dof,'hf_clean') && dof.hf_clean.enabled && dof.hf_clean.freq_hz > 0
-        b  = crossoverBank(x, dof.hf_clean.freq_hz, fs);   % phase-matched, sums to x
-        lo = b{1}; hi = b{2};
+        hc = dof.hf_clean;
+        % Default is the telescoping complementary split (lo+hi == x exactly).
+        % A true LR4 pair separates the bands slightly better but sums to an
+        % ALLPASS, and measured through a 50% dry/wet blend that produced 39.7 dB
+        % of comb ripple versus 0.00 dB here (verifySplit test 4) - which would
+        % wreck the multiband layer's per-band Dry/Wet. Phase transparency wins;
+        % 'lr4' stays available for single-band, always-100%-wet experiments.
+        if isfield(hc,'split_type') && strcmpi(hc.split_type,'lr4')
+            [lo, hi] = lr4Pair(x, hc.freq_hz, fs);
+        else
+            b = crossoverBank(x, hc.freq_hz, fs); lo = b{1}; hi = b{2};
+        end
+        beta = 0;                                          % HF fraction still driven
+        if isfield(hc,'beta') && ~isempty(hc.beta); beta = hc.beta; end
         dofCore = dof; dofCore.hf_clean.enabled = false;   % recurse once, core only
         g = 1;
-        if ~isfield(dof.hf_clean,'gain_match') || dof.hf_clean.gain_match
+        if ~isfield(hc,'gain_match') || hc.gain_match
             g = smallSignalGain(dofCore, fs, track);
         end
-        y = processSignal(lo, dofCore, fs, track) + g*hi;
+        % Linear region: g*(lo + beta*hi) + g*(1-beta)*hi = g*(lo+hi) = g*allpass
+        % -> flat magnitude by construction, whatever beta is.
+        y = processSignal(lo + beta*hi, dofCore, fs, track) + g*(1-beta)*hi;
         return;
     end
 
@@ -92,11 +106,18 @@ end
 function g = smallSignalGain(dof, fs, track)
 %SMALLSIGNALGAIN  linear-region gain of the coloration chain, measured by probing
 %   it with a quiet tone (well below any saturation), so the HF-clean split can
-%   keep the overall linear response flat.
+%   keep the overall linear response flat. Cached: the probe render is otherwise
+%   repeated on every call.
+    persistent cache
+    if isempty(cache); cache = containers.Map('KeyType','char','ValueType','double'); end
+    key = sprintf('%s|%d|%s', track, fs, jsonencode(dof.shaper));
+    if isfield(dof,'output'); key = [key '|' jsonencode(dof.output)]; end
+    if isKey(cache, key); g = cache(key); return; end
     n = round(0.05*fs); t = (0:n-1)'/fs;
     a = 10^(-60/20); p = a*sin(2*pi*1000*t);
     q = processSignal(p, dof, fs, track);
     g = sqrt(mean(q.^2)) / max(sqrt(mean(p.^2)), eps);
+    cache(key) = g;
 end
 
 function env = envelopeFollow(x, fs, atk_ms, rel_ms)

@@ -74,17 +74,14 @@ function out = evalHFOptions(track, fs, progFile)
     out=struct('track',track,'rows',{rows});
 end
 
-% ---- chain with optional HF-clean split ---------------------------------
+% ---- chain: always the SHIPPED path, so the table describes what we ship ----
 function y = runChain(x, dof, fs, track, splitHz)
-    if splitHz <= 0
-        y = processSignal(x, dof, fs, track); return;
+    if splitHz > 0
+        dof.hf_clean.enabled = true;
+        dof.hf_clean.freq_hz = splitHz;
+        dof.hf_clean.gain_match = true;    % the earlier local copy omitted this
     end
-    lo = lr4low(x, splitHz, fs);          % distort only the low band
-    hi = x - lo;                           % complementary high band stays clean
-    y  = processSignal(lo, dof, fs, track) + hi;
-end
-function y = lr4low(x, fc, fs)
-    [b,a]=butter(2, fc/(fs/2), 'low'); y=filter(b,a,filter(b,a,x));
+    y = processSignal(x, dof, fs, track);
 end
 
 % ---- metrics --------------------------------------------------------------

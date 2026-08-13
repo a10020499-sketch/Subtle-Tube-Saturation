@@ -40,26 +40,31 @@ function y = waveshaper(x, shaper)
             % (even powers -> u|u|^(p-1)); the latter give 3rd-harmonic ~ A^2,
             % i.e. THD slope 1, which pure odd polynomials cannot represent (H2,
             % Iter-4). All terms are odd, so only odd harmonics are produced.
-            % shaper.smooth_eps > 0 replaces the |u| corner with sqrt(u^2+eps^2),
-            % removing the derivative discontinuity at u=0 that the even-power
-            % ("odd square-law") terms otherwise introduce. The kink radiates a
-            % slowly-decaying (~1/n^3) harmonic series which folds back as
-            % aliasing; smoothing it is audible as less HF fizz while leaving the
-            % fitted curve unchanged for |u| >> eps.
+            % smooth_eps > 0 rounds the corner the even-power terms have at u=0.
+            % Written as  c_p * u * (u^2+eps^2)^((p-1)/2)  so that p=1 stays
+            % EXACTLY c1*u (a naive sqrt(u^2+eps^2)-eps form multiplies the linear
+            % term by 1-eps/sqrt(u^2+eps^2), which collapses to a dead zone at low
+            % level). For |u| >> eps every term matches sign(u)|u|^p; only the
+            % high-order tail (H7 and above) is shortened.
+            % NOTE: this is a curve-accuracy lever, NOT the cure for the perceived
+            % HF fizz -- aliasing was measured at -130 dB (2-8 kHz) / -70 dB
+            % (11 kHz), so the kink's radiated tail is not folding back audibly.
             p = shaper.powers(:); c = shaper.coeffs(:);
             eps_s = 0;
             if isfield(shaper,'smooth_eps') && ~isempty(shaper.smooth_eps)
                 eps_s = shaper.smooth_eps;
             end
-            if eps_s > 0
-                au = sqrt(u.^2 + eps_s^2) - eps_s;      % smooth |u|, still 0 at u=0
-                su = u ./ sqrt(u.^2 + eps_s^2);         % smooth sign(u)
-            else
-                au = abs(u); su = sign(u);
-            end
             y = zeros(size(u));
-            for i = 1:numel(p)
-                y = y + c(i) * su .* au.^p(i);
+            if eps_s > 0
+                r2 = u.^2 + eps_s^2;
+                for i = 1:numel(p)
+                    y = y + c(i) * u .* r2.^((p(i)-1)/2);
+                end
+            else
+                su = sign(u); au = abs(u);
+                for i = 1:numel(p)
+                    y = y + c(i) * su .* au.^p(i);
+                end
             end
         case 'softknee'
             % soft-knee limiter-style curve: linear below knee, tanh above
