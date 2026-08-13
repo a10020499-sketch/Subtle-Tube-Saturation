@@ -11,6 +11,24 @@ function y = processSignal(x, dof, fs, track)
 
     x = x(:);
 
+    % 0) HF-clean split (Phase B voice lever, not part of the Saturn match).
+    % Keeping the top octaves out of the nonlinearity stops intermodulation grit
+    % being generated up there, which is what reads as "digital/fizzy highs" on
+    % dense bright material; the low band still saturates normally so the warmth
+    % is untouched. The clean high band is scaled by the chain's small-signal gain
+    % so the linear response stays flat (transparent) rather than tilting bright.
+    if isfield(dof,'hf_clean') && dof.hf_clean.enabled && dof.hf_clean.freq_hz > 0
+        b  = crossoverBank(x, dof.hf_clean.freq_hz, fs);   % phase-matched, sums to x
+        lo = b{1}; hi = b{2};
+        dofCore = dof; dofCore.hf_clean.enabled = false;   % recurse once, core only
+        g = 1;
+        if ~isfield(dof.hf_clean,'gain_match') || dof.hf_clean.gain_match
+            g = smallSignalGain(dofCore, fs, track);
+        end
+        y = processSignal(lo, dofCore, fs, track) + g*hi;
+        return;
+    end
+
     % 1) Pre-EQ H1
     v = preEQ(x, dof, fs);
 
@@ -69,6 +87,16 @@ function y = processSignal(x, dof, fs, track)
             error('processSignal:output', 'unknown output.mode "%s"', dof.output.mode);
     end
     y = w * g;
+end
+
+function g = smallSignalGain(dof, fs, track)
+%SMALLSIGNALGAIN  linear-region gain of the coloration chain, measured by probing
+%   it with a quiet tone (well below any saturation), so the HF-clean split can
+%   keep the overall linear response flat.
+    n = round(0.05*fs); t = (0:n-1)'/fs;
+    a = 10^(-60/20); p = a*sin(2*pi*1000*t);
+    q = processSignal(p, dof, fs, track);
+    g = sqrt(mean(q.^2)) / max(sqrt(mean(p.^2)), eps);
 end
 
 function env = envelopeFollow(x, fs, atk_ms, rel_ms)

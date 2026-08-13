@@ -40,8 +40,23 @@ function y = waveshaper(x, shaper)
             % (even powers -> u|u|^(p-1)); the latter give 3rd-harmonic ~ A^2,
             % i.e. THD slope 1, which pure odd polynomials cannot represent (H2,
             % Iter-4). All terms are odd, so only odd harmonics are produced.
+            % shaper.smooth_eps > 0 replaces the |u| corner with sqrt(u^2+eps^2),
+            % removing the derivative discontinuity at u=0 that the even-power
+            % ("odd square-law") terms otherwise introduce. The kink radiates a
+            % slowly-decaying (~1/n^3) harmonic series which folds back as
+            % aliasing; smoothing it is audible as less HF fizz while leaving the
+            % fitted curve unchanged for |u| >> eps.
             p = shaper.powers(:); c = shaper.coeffs(:);
-            su = sign(u); au = abs(u);
+            eps_s = 0;
+            if isfield(shaper,'smooth_eps') && ~isempty(shaper.smooth_eps)
+                eps_s = shaper.smooth_eps;
+            end
+            if eps_s > 0
+                au = sqrt(u.^2 + eps_s^2) - eps_s;      % smooth |u|, still 0 at u=0
+                su = u ./ sqrt(u.^2 + eps_s^2);         % smooth sign(u)
+            else
+                au = abs(u); su = sign(u);
+            end
             y = zeros(size(u));
             for i = 1:numel(p)
                 y = y + c(i) * su .* au.^p(i);

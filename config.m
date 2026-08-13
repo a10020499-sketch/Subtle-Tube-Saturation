@@ -68,6 +68,14 @@ function cfg = config()
     baseDof.dec.release_ms = 100;
     % Post-EQ H2 (H6) -- identity by default
     baseDof.postEQ.stages = struct('type', {}, 'freq_hz', {}, 'gain_db', {}, 'q', {});
+    % HF-clean split (Phase B voice lever; OFF = the frozen Phase A saturn-like
+    % model). When enabled, only content below freq_hz enters the nonlinearity;
+    % the complementary high band passes through clean (scaled by the chain's
+    % small-signal gain so the linear response stays flat). Removes the
+    % intermodulation grit in the highs without dulling them.
+    baseDof.hf_clean.enabled    = false;
+    baseDof.hf_clean.freq_hz    = 6000;
+    baseDof.hf_clean.gain_match = true;
     % output gain compensation (H5)
     baseDof.output.mode    = 'fixed';     % fixed | harmonic_auto
     baseDof.output.gain_db = 0.0;
