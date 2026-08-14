@@ -50,6 +50,17 @@ function y = waveshaper(x, shaper)
             % HF fizz -- aliasing was measured at -130 dB (2-8 kHz) / -70 dB
             % (11 kHz), so the kink's radiated tail is not folding back audibly.
             p = shaper.powers(:); c = shaper.coeffs(:);
+            % MONOTONIC GUARD. These coefficients were fitted over the measured
+            % amplitude range only; outside it the polynomial is unconstrained and
+            % turns over (tube at |u|=1.026, saturation at |u|=1.053). Past the
+            % turnover more input gives LESS output with inverted slope - wave
+            % folding, which sounds far worse than clipping and lands exactly on
+            % the loudest transients. Any lever that raises drive (drive_k, a
+            % pre-EQ boost, per-band drive in the multiband layer) can walk the
+            % signal there, so clamp the magnitude at the turnover: the curve then
+            % saturates and holds. The join is C1 because the slope is zero there.
+            ut = signpowTurnover(p, c);
+            u  = sign(u) .* min(abs(u), ut);
             eps_s = 0;
             if isfield(shaper,'smooth_eps') && ~isempty(shaper.smooth_eps)
                 eps_s = shaper.smooth_eps;
@@ -78,4 +89,21 @@ function y = waveshaper(x, shaper)
 
     % Remove DC introduced by bias/asymmetry so no static offset propagates.
     y = y - mean(y);
+end
+
+% =========================================================================
+function ut = signpowTurnover(p, c)
+%SIGNPOWTURNOVER  smallest |u| > 0 at which d/du sum(c_p*|u|^p) reaches zero,
+%   i.e. where the fitted curve stops being monotonic. Inf if it never does.
+%   Cached per coefficient set, since this is called on every block.
+    persistent cache
+    if isempty(cache); cache = containers.Map('KeyType','char','ValueType','double'); end
+    key = sprintf('%.10g,', [p(:)' c(:)']);
+    if isKey(cache, key); ut = cache(key); return; end
+    u = linspace(1e-4, 4, 40001)';
+    d = zeros(size(u));
+    for i = 1:numel(p); d = d + c(i)*p(i)*u.^(p(i)-1); end     % f'(u)
+    k = find(d <= 0, 1);
+    if isempty(k); ut = Inf; else; ut = u(k); end
+    cache(key) = ut;
 end
