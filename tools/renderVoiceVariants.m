@@ -1,4 +1,4 @@
-function renderVoiceVariants(track, voiceStage, iterId, variants, fileList)
+function renderVoiceVariants(track, voiceStage, iterId, variants, fileList, srcDir, matchLoudness)
 %RENDERVOICEVARIANTS  Render several candidate voicings side by side for a Phase B
 %   A/B listening test (SPECIFICATION 4.6, R-ListeningProtocol).
 %
@@ -12,7 +12,12 @@ function renderVoiceVariants(track, voiceStage, iterId, variants, fileList)
 %   Program material is processed at its native sample rate.
 
     cfg = config();
-    progDir = cfg.paths.program;
+    if nargin < 6 || isempty(srcDir); srcDir = cfg.paths.program; end
+    % Loudness matching is mandatory for LISTENING (R-ListeningProtocol) but wrong
+    % for measurement probes: to read a spectrum analyser you want the real gain
+    % and harmonic levels the processor applies, not a re-levelled version.
+    if nargin < 7 || isempty(matchLoudness); matchLoudness = true; end
+    progDir = srcDir;
     outDir  = fullfile(cfg.paths.output, track, 'voice', voiceStage, sprintf('iter_%02d', iterId));
     if ~exist(outDir,'dir'); mkdir(outDir); end
     if nargin < 5 || isempty(fileList)
@@ -35,7 +40,11 @@ function renderVoiceVariants(track, voiceStage, iterId, variants, fileList)
             for ch = 1:size(x,2)
                 y(:,ch) = processSignal(x(:,ch), dof, fs, track);
             end
-            gDb = Ldry - loud(y, fs); y = y * 10^(gDb/20);
+            if matchLoudness
+                gDb = Ldry - loud(y, fs); y = y * 10^(gDb/20);
+            else
+                gDb = 0;                       % probes: keep the real level
+            end
             audiowrite(fullfile(outDir, sprintf('%s__%s.wav', base, variants(v).name)), ...
                        clip(y), fs, 'BitsPerSample',24);
             rows(end+1) = struct('program',fn,'variant',variants(v).name, ...

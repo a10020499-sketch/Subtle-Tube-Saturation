@@ -11,61 +11,59 @@ function y = processSignal(x, dof, fs, track)
 
     x = x(:);
 
-    % 0) HF-clean split (Phase B voice lever, not part of the Saturn match).
-    % Keeping the top octaves out of the nonlinearity stops intermodulation grit
-    % being generated up there, which is what reads as "digital/fizzy highs" on
-    % dense bright material; the low band still saturates normally so the warmth
-    % is untouched. The clean high band is scaled by the chain's small-signal gain
-    % so the linear response stays flat (transparent) rather than tilting bright.
-    if isfield(dof,'hf_clean') && dof.hf_clean.enabled && dof.hf_clean.freq_hz > 0
-        hc = dof.hf_clean;
-        % Default is the telescoping complementary split (lo+hi == x exactly).
-        % A true LR4 pair separates the bands slightly better but sums to an
-        % ALLPASS, and measured through a 50% dry/wet blend that produced 39.7 dB
-        % of comb ripple versus 0.00 dB here (verifySplit test 4) - which would
-        % wreck the multiband layer's per-band Dry/Wet. Phase transparency wins;
-        % 'lr4' stays available for single-band, always-100%-wet experiments.
-        if isfield(hc,'split_type') && strcmpi(hc.split_type,'lr4')
-            [lo, hi] = lr4Pair(x, hc.freq_hz, fs);
-        else
-            b = crossoverBank(x, hc.freq_hz, fs); lo = b{1}; hi = b{2};
-        end
-        beta = 0;                                          % HF fraction still driven
-        if isfield(hc,'beta') && ~isempty(hc.beta); beta = hc.beta; end
-        dofCore = dof; dofCore.hf_clean.enabled = false;   % recurse once, core only
+    % 0) BAND-LIMITED DRIVE (Phase B voice levers, not part of the Saturn match).
+    % Content outside [lf_clean.freq_hz, hf_clean.freq_hz] can be kept out of the
+    % nonlinearity and passed through clean:
+    %   * clean HIGHS  - stops the intermodulation grit that reads as "digital /
+    %     fizzy highs" on dense bright material.
+    %   * clean LOWS   - a memoryless curve compresses a kick transient the instant
+    %     it arrives and has no attack/release to soften that; keeping the bottom
+    %     octave out of the curve is the only lever that restores PUNCH. (Measured:
+    %     changing the follow attack from 1 ms to 30 ms moved punch by 0.00 dB,
+    %     because the follow only touches the band above the HF crossover.)
+    % Each clean band has its own beta (fraction still driven) and follow (density
+    % restoration), so either can be blended continuously rather than switched.
+    hasHF = isfield(dof,'hf_clean') && dof.hf_clean.enabled && dof.hf_clean.freq_hz > 0;
+    hasLF = isfield(dof,'lf_clean') && dof.lf_clean.enabled && dof.lf_clean.freq_hz > 0;
+    if hasHF || hasLF
+        dofCore = dof;                                   % recurse once, core only
+        if hasHF; dofCore.hf_clean.enabled = false; end
+        if hasLF; dofCore.lf_clean.enabled = false; end
         g = 1;
-        if ~isfield(hc,'gain_match') || hc.gain_match
-            g = smallSignalGain(dofCore, fs, track);
-        end
-        % Linear region: g*(lo + beta*hi) + g*(1-beta)*hi = g*(lo+hi) = g*allpass
-        % -> flat magnitude by construction, whatever beta is.
-        yLo     = processSignal(lo + beta*hi, dofCore, fs, track);
-        hiClean = g*(1-beta)*hi;
+        gm = (~hasHF || ~isfield(dof.hf_clean,'gain_match') || dof.hf_clean.gain_match) && ...
+             (~hasLF || ~isfield(dof.lf_clean,'gain_match') || dof.lf_clean.gain_match);
+        if gm; g = smallSignalGain(dofCore, fs, track); end
 
-        % Density follow. A saturator's perceived THICKNESS comes largely from
-        % peak compression; routing HF around the curve lets its transients
-        % through uncompressed, crest factor rises and - once loudness-matched -
-        % the result reads as thinner. Modulating the clean HF by the gain the
-        % curve is actually applying to the low band restores that density while
-        % still generating no HF harmonics or intermodulation. Envelope-rate
-        % (ms), never sample-rate, so it does not itself distort.
-        follow = 0;
-        if isfield(hc,'follow') && ~isempty(hc.follow); follow = hc.follow; end
-        if follow > 0
-            % Fast attack so the HF transient is ducked with the hit that caused
-            % it (that is where the crest difference lives); slower release so the
-            % modulation stays well below audio rate and adds no sidebands.
-            atk = 1;  if isfield(hc,'follow_attack_ms')  && ~isempty(hc.follow_attack_ms);  atk = hc.follow_attack_ms;  end
-            rel = 30; if isfield(hc,'follow_release_ms') && ~isempty(hc.follow_release_ms); rel = hc.follow_release_ms; end
-            ref = g*(lo + beta*hi);                 % the low path had it stayed linear
-            % gain reduction envelope: fall fast (attack), recover slowly (release)
-            eOut = envelopeFollow(yLo, fs, atk, rel);
-            eRef = envelopeFollow(ref, fs, atk, rel);
-            gr  = eOut ./ max(eRef, eps);
-            gr  = min(max(gr, 0.25), 1.5);          % guard against pathological ratios
-            hiClean = hiClean .* (1 + follow*(gr - 1));
+        mid = x; loClean = zeros(size(x)); hiClean = zeros(size(x));
+        betaL = 0; betaH = 0;
+        if hasLF
+            % split off the clean bottom first, then band the remainder
+            [loClean, mid] = splitAt(mid, dof.lf_clean, fs);
+            betaL = getf(dof.lf_clean,'beta',0);
         end
-        y = yLo + hiClean;
+        if hasHF
+            [mid, hiClean] = splitAt(mid, dof.hf_clean, fs);
+            betaH = getf(dof.hf_clean,'beta',0);
+        end
+
+        % Linear region: g*(mid + bL*lo + bH*hi) + g*(1-bL)*lo + g*(1-bH)*hi
+        %              = g*(mid+lo+hi) = g*x  -> flat by construction, any beta.
+        driven  = mid + betaL*loClean + betaH*hiClean;
+        yMid    = processSignal(driven, dofCore, fs, track);
+        ref     = g*driven;                     % the driven path had it stayed linear
+        loOut   = g*(1-betaL)*loClean;
+        hiOut   = g*(1-betaH)*hiClean;
+
+        % Density follow. A saturator's perceived THICKNESS comes largely from peak
+        % compression; routing a band around the curve lets its transients through
+        % uncompressed, crest factor rises and - once loudness-matched - the result
+        % reads as thinner. Modulating a clean band by the gain reduction the curve
+        % is applying restores that density while generating no extra harmonics.
+        % Envelope-rate (ms), never sample-rate, so it does not itself distort.
+        if hasHF; hiOut = applyFollow(hiOut, yMid, ref, dof.hf_clean, fs); end
+        if hasLF; loOut = applyFollow(loOut, yMid, ref, dof.lf_clean, fs); end
+
+        y = yMid + loOut + hiOut;
         return;
     end
 
@@ -127,6 +125,38 @@ function y = processSignal(x, dof, fs, track)
             error('processSignal:output', 'unknown output.mode "%s"', dof.output.mode);
     end
     y = w * g;
+end
+
+function v = getf(s, name, dflt)
+    if isfield(s,name) && ~isempty(s.(name)); v = s.(name); else; v = dflt; end
+end
+
+function [lo, hi] = splitAt(x, spec, fs)
+%SPLITAT  Split x at spec.freq_hz. Default is the telescoping complementary form
+%   (lo+hi == x exactly). A true LR4 pair separates the bands slightly better but
+%   sums to an ALLPASS, which measured 39.7 dB of comb ripple through a 50%
+%   dry/wet blend versus 0.00 dB here (verifySplit test 4) - that would wreck the
+%   multiband layer's per-band Dry/Wet. Phase transparency wins; 'lr4' stays
+%   available for single-band, always-100%-wet experiments.
+    if isfield(spec,'split_type') && strcmpi(spec.split_type,'lr4')
+        [lo, hi] = lr4Pair(x, spec.freq_hz, fs);
+    else
+        b = crossoverBank(x, spec.freq_hz, fs); lo = b{1}; hi = b{2};
+    end
+end
+
+function bandOut = applyFollow(bandOut, yDriven, refDriven, spec, fs)
+%APPLYFOLLOW  Modulate a clean band by the gain reduction the curve is applying
+%   to the driven band. Fast attack so a transient is ducked with the hit that
+%   caused it; slower release so the modulation stays well below audio rate.
+    follow = getf(spec,'follow',0);
+    if follow <= 0; return; end
+    atk = getf(spec,'follow_attack_ms', 1);
+    rel = getf(spec,'follow_release_ms',30);
+    eOut = envelopeFollow(yDriven,   fs, atk, rel);
+    eRef = envelopeFollow(refDriven, fs, atk, rel);
+    gr = min(max(eOut ./ max(eRef, eps), 0.25), 1.5);   % guard pathological ratios
+    bandOut = bandOut .* (1 + follow*(gr - 1));
 end
 
 function g = smallSignalGain(dof, fs, track)

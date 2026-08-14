@@ -76,6 +76,12 @@ function cfg = config()
     baseDof.hf_clean.enabled    = false;
     baseDof.hf_clean.freq_hz    = 6000;
     baseDof.hf_clean.gain_match = true;
+    % LF-clean split (mirror of the above): keeps the bottom octave out of the
+    % nonlinearity. A memoryless curve compresses a kick transient instantly with
+    % no attack/release to soften it, so this is the lever that restores PUNCH.
+    baseDof.lf_clean.enabled    = false;
+    baseDof.lf_clean.freq_hz    = 90;
+    baseDof.lf_clean.gain_match = true;
     % output gain compensation (H5)
     baseDof.output.mode    = 'fixed';     % fixed | harmonic_auto
     baseDof.output.gain_db = 0.0;
