@@ -39,7 +39,33 @@ function y = processSignal(x, dof, fs, track)
         end
         % Linear region: g*(lo + beta*hi) + g*(1-beta)*hi = g*(lo+hi) = g*allpass
         % -> flat magnitude by construction, whatever beta is.
-        y = processSignal(lo + beta*hi, dofCore, fs, track) + g*(1-beta)*hi;
+        yLo     = processSignal(lo + beta*hi, dofCore, fs, track);
+        hiClean = g*(1-beta)*hi;
+
+        % Density follow. A saturator's perceived THICKNESS comes largely from
+        % peak compression; routing HF around the curve lets its transients
+        % through uncompressed, crest factor rises and - once loudness-matched -
+        % the result reads as thinner. Modulating the clean HF by the gain the
+        % curve is actually applying to the low band restores that density while
+        % still generating no HF harmonics or intermodulation. Envelope-rate
+        % (ms), never sample-rate, so it does not itself distort.
+        follow = 0;
+        if isfield(hc,'follow') && ~isempty(hc.follow); follow = hc.follow; end
+        if follow > 0
+            % Fast attack so the HF transient is ducked with the hit that caused
+            % it (that is where the crest difference lives); slower release so the
+            % modulation stays well below audio rate and adds no sidebands.
+            atk = 1;  if isfield(hc,'follow_attack_ms')  && ~isempty(hc.follow_attack_ms);  atk = hc.follow_attack_ms;  end
+            rel = 30; if isfield(hc,'follow_release_ms') && ~isempty(hc.follow_release_ms); rel = hc.follow_release_ms; end
+            ref = g*(lo + beta*hi);                 % the low path had it stayed linear
+            % gain reduction envelope: fall fast (attack), recover slowly (release)
+            eOut = envelopeFollow(yLo, fs, atk, rel);
+            eRef = envelopeFollow(ref, fs, atk, rel);
+            gr  = eOut ./ max(eRef, eps);
+            gr  = min(max(gr, 0.25), 1.5);          % guard against pathological ratios
+            hiClean = hiClean .* (1 + follow*(gr - 1));
+        end
+        y = yLo + hiClean;
         return;
     end
 

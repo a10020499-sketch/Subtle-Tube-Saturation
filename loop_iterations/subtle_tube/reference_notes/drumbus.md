@@ -73,3 +73,51 @@ cuts the fizz only 5.6 dB and costs 5.7 dB of the wanted mid character.
 
 **Status: pending_review** — A/B/C/D rendered for both tracks on EDM / Epic_Drum /
 Disco, loudness-matched. improved/regressed to be decided by the listener.
+
+---
+
+## voice_stage `enhanced`, iter 02 — thickness recovery
+
+**Human feedback (2026-08-11)**
+> "乾淨程度 B 版就可以，但 B/C/D 雖然變通透了，Tube 的暖度變少了、Saturation 變薄了，
+> 共通點是厚度變薄了，希望是介在 A_saturn_like 跟 B_hf8k 之間的聽感。"
+
+Cleanliness target settled at **B (8 kHz)**. Defect: all split variants lost body.
+
+**Measured cause — it is crest factor, not tone.** Loudness-matched crest (dB):
+
+| material | dry | A baseline | B hf8k |
+|---|---|---|---|
+| EDM | 8.11 | **7.46** | **11.10** |
+| Epic_Drum | 14.04 | **10.49** | **13.03** |
+| Disco | 9.97 | **8.70** | **12.07** |
+
+A pushes crest *below* dry — that peak compression is what "thick" means here.
+B pushes it *above* dry, because HF transients now bypass the curve entirely;
+after loudness matching the programme is ~3.6 dB less dense. Mid-band RMS barely
+moves (−0.05 dB), so this is density, not tonal balance. The listener's "thinner"
+is exactly this number.
+
+**Two levers added, both aimed at density rather than tone**
+- `beta` — fraction of the HF band still driven into the nonlinearity
+  (0 = fully clean, 1 = the unsplit baseline).
+- `follow` — modulates the *clean* HF band by the gain reduction the curve is
+  applying to the low band (1 ms attack / 30 ms release, envelope rate so it adds
+  no sidebands). Restores the peak compression without generating HF harmonics.
+
+| variant | EDM | Epic | Disco | nlHF |
+|---|---|---|---|---|
+| A baseline | 7.46 | 10.49 | 8.70 | −20.6 |
+| B hf8k | 11.10 | 13.03 | 12.07 | −26.6 |
+| follow 1.0 alone | 10.37 | 11.44 | 10.55 | −24.5 |
+| beta .35 alone | 9.98 | 11.95 | 11.69 | −28.9 |
+| **beta .35 + follow 1.0** | **9.62** | **11.00** | **10.29** | **−25.7** |
+
+The two levers are complementary: together they recover most of the density gap
+while giving up only 0.9 dB of the cleanliness B bought.
+
+**Rendered ladder for the listener** (all at fc = 8 kHz, follow = 1.0):
+E1 `beta 0.25` (closest to B) / E2 `beta 0.50` / E3 `beta 0.75` (closest to A).
+Peaks fall monotonically E1 → E3, confirming the ladder sits between A and B.
+
+**Status: pending_review.**

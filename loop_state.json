@@ -16,8 +16,8 @@
       "status": "phase_a_exited",
       "phase_a_exit": {"reason": "human_override", "technical_thresholds_met": false, "approved_by": "human", "iteration": 4, "note": "residual is pure low-level (-13..-24 dBFS, 1-2% THD); exact from -7 dBFS up; musically irrelevant for a bus saturator per Primary Goal"},
       "voice_stage": "enhanced",
-      "voice_iteration": 1,
-      "voice_pending_review": "HF-clean split A/B (A=saturn_like, B=8k, C=6k, D=4k) rendered, awaiting human listening verdict",
+      "voice_iteration": 2,
+      "voice_pending_review": "fc=8k accepted for cleanliness; thickness ladder E1/E2/E3 (beta 0.25/0.50/0.75 + density follow) rendered, awaiting human pick",
       "voice_signoff": {
         "enhanced": false,
         "final": false
@@ -38,8 +38,8 @@
       "status": "phase_a_exited",
       "phase_a_exit": {"reason": "human_override", "technical_thresholds_met": false, "approved_by": "human", "iteration": 3, "note": "H8 dynamic-bias captures the valve character; audible H2/H3 within 1-2 dB; residual is inaudible H4 (-40..-70 dB); accepted per Primary Goal"},
       "voice_stage": "enhanced",
-      "voice_iteration": 1,
-      "voice_pending_review": "HF-clean split A/B (A=saturn_like, B=8k, C=6k, D=4k) rendered, awaiting human listening verdict",
+      "voice_iteration": 2,
+      "voice_pending_review": "fc=8k accepted for cleanliness; thickness ladder E1/E2/E3 (beta 0.25/0.50/0.75 + density follow) rendered, awaiting human pick",
       "voice_signoff": {
         "enhanced": false,
         "final": false
