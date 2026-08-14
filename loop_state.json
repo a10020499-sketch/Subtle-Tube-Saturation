@@ -16,8 +16,8 @@
       "status": "phase_a_exited",
       "phase_a_exit": {"reason": "human_override", "technical_thresholds_met": false, "approved_by": "human", "iteration": 4, "note": "residual is pure low-level (-13..-24 dBFS, 1-2% THD); exact from -7 dBFS up; musically irrelevant for a bus saturator per Primary Goal"},
       "voice_stage": "enhanced",
-      "voice_iteration": 6,
-      "voice_pending_review": "tube=transient-preserve ladder U0-U3 (frequency-agnostic punch; lf_clean withdrawn per listener constraint); saturation=S3 + mid-balance ladder V0-V3; awaiting human pick",
+      "voice_iteration": 7,
+      "voice_pending_review": "tube U3 accepted; saturation V0 accepted. Strength ladders rendered: tube W1(+20%25 drive1.2/bias1.25) W2(+35%25); saturation X1(+30%25 drive1.3+air1) X2(+45%25). Awaiting final pick to lock -final",
       "voice_signoff": {
         "enhanced": false,
         "final": false
@@ -38,8 +38,8 @@
       "status": "phase_a_exited",
       "phase_a_exit": {"reason": "human_override", "technical_thresholds_met": false, "approved_by": "human", "iteration": 3, "note": "H8 dynamic-bias captures the valve character; audible H2/H3 within 1-2 dB; residual is inaudible H4 (-40..-70 dB); accepted per Primary Goal"},
       "voice_stage": "enhanced",
-      "voice_iteration": 6,
-      "voice_pending_review": "tube=transient-preserve ladder U0-U3 (frequency-agnostic punch; lf_clean withdrawn per listener constraint); saturation=S3 + mid-balance ladder V0-V3; awaiting human pick",
+      "voice_iteration": 7,
+      "voice_pending_review": "tube U3 accepted; saturation V0 accepted. Strength ladders rendered: tube W1(+20%25 drive1.2/bias1.25) W2(+35%25); saturation X1(+30%25 drive1.3+air1) X2(+45%25). Awaiting final pick to lock -final",
       "voice_signoff": {
         "enhanced": false,
         "final": false
