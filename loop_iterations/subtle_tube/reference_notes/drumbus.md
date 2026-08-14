@@ -121,3 +121,52 @@ E1 `beta 0.25` (closest to B) / E2 `beta 0.50` / E3 `beta 0.75` (closest to A).
 Peaks fall monotonically E1 → E3, confirming the ladder sits between A and B.
 
 **Status: pending_review.**
+
+---
+
+## voice_stage `enhanced`, iter 05 — full-band punch, on the listener's constraint
+
+**Human feedback (2026-08-11)**
+> Tube: "喜歡 P0 的暖，但喜歡 P1 的衝擊性。我希望做法是就算全頻段都過飽和，衝擊力
+> 還能出來，因為之後會做分頻，我就可以自己決定哪些頻率不過 Tube，所以預先寫死
+> 多少頻段以下不過飽和不是我要的。"
+> Saturation: "喜歡 S3，空氣感跟尾音有了，但中頻、中低頻變薄了一點點。"
+
+**Design constraint accepted.** `lf_clean` is withdrawn as the punch answer: it
+hardwires a frequency range to bypass saturation, and that decision belongs to the
+downstream multiband layer, not to the core. The lever stays in the codebase but
+defaults off. The punch mechanism must be frequency-agnostic.
+
+**Transient preserve (new).** Detect an attack from the ratio of a fast envelope
+(1 ms) to a slow one (50 ms) and lean the output toward the linear path for those
+few milliseconds only; steady state remains fully saturated, so the approved warmth
+is untouched. Because it keys off an envelope ratio rather than a crossover it
+behaves identically whether the core is fed full-range material or a single band
+from the multiband layer.
+
+TAG punch (dB; higher = more punch, 0 = punch-neutral):
+
+| depth | Epic_Drum | Drum_Test |
+|---|---|---|
+| P0 current | −0.62 | −0.20 |
+| 0.5 | −0.14 | +0.06 |
+| 0.7 | +0.02 | +0.14 |
+| 1.0 | **+0.23** | **+0.25** |
+
+Monotonic, and at 0.7–1.0 the result is punch-positive — better than the withdrawn
+low-band bypass managed (lf90 reached −0.05 on Epic_Drum) and with no band split.
+
+**Saturation "thinner mids" — measured, and it is not a spectral loss.** Effective
+EQ after loudness matching, per octave (dB):
+
+| | 250 | 500 | 1000 | 4000 | 8000 |
+|---|---|---|---|---|---|
+| S0 | 0.10 | 0.19 | 0.05 | −0.09 | −0.29 |
+| S3 | 0.08 | 0.19 | 0.12 | +0.50 | +0.87 |
+
+The low-mids and mids are unchanged; the highs rose 0.5–0.9 dB, which makes the
+mids read as recessed. So the fix restores the BALANCE (a low-mid lift) rather than
+chasing a loss that did not happen. Ladder V1/V2/V3 = +0.75 / +1.5 / +1.5 & +1.0
+at 250 / 700 Hz, air and tail unchanged from S3.
+
+**Status: pending_review.**

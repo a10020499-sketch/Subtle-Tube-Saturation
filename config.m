@@ -82,6 +82,15 @@ function cfg = config()
     baseDof.lf_clean.enabled    = false;
     baseDof.lf_clean.freq_hz    = 90;
     baseDof.lf_clean.gain_match = true;
+    % Transient preserve (frequency-agnostic punch). Leans the output toward the
+    % linear path for the first milliseconds of an attack, so impact survives even
+    % with the whole spectrum driven into the curve - no band is hardwired to
+    % bypass saturation, which keeps that decision in the multiband layer.
+    baseDof.transient.enabled     = false;
+    baseDof.transient.depth       = 0.5;   % 0..1, how far toward dry on a peak
+    baseDof.transient.fast_ms     = 1;
+    baseDof.transient.slow_ms     = 50;
+    baseDof.transient.sensitivity = 0.5;   % ratio excess mapped to full depth
     % output gain compensation (H5)
     baseDof.output.mode    = 'fixed';     % fixed | harmonic_auto
     baseDof.output.gain_db = 0.0;

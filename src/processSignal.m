@@ -11,6 +11,37 @@ function y = processSignal(x, dof, fs, track)
 
     x = x(:);
 
+    % -1) TRANSIENT PRESERVE (Phase B voice lever) - frequency-agnostic punch.
+    % A memoryless curve squashes an attack the instant it arrives and has no
+    % attack/release to soften it, so impact is lost. Band-splitting the lows out
+    % of the curve would restore it, but that hardwires a frequency range to
+    % bypass saturation, which belongs to the downstream multiband layer, not to
+    % the core. Instead: detect an attack (fast envelope running well above the
+    % slow one) and momentarily lean the output toward the linear path. The steady
+    % state stays fully saturated - the approved warmth is untouched - and only
+    % the first milliseconds of a hit pass less compressed. Works on whatever band
+    % it is fed, so it behaves the same full-range or inside one multiband band.
+    if isfield(dof,'transient') && dof.transient.enabled && dof.transient.depth > 0
+        tp = dof.transient;
+        dofNoTP = dof; dofNoTP.transient.enabled = false;
+        wet = processSignal(x, dofNoTP, fs, track);
+        g   = smallSignalGain(dofNoTP, fs, track);
+        fastMs = getf(tp,'fast_ms',1); slowMs = getf(tp,'slow_ms',50);
+        sens   = getf(tp,'sensitivity',0.5);
+        ax = abs(x);
+        % The fast detector must RISE quickly (attack) and the slow one must be
+        % sluggish in both directions; that ordering is what makes the ratio spike
+        % at the onset rather than after it. Reacting late is the trap that made
+        % two earlier gain-followers amplify transients instead of shaping them.
+        ef = envelopeFollow(ax, fs, fastMs, fastMs*4);
+        es = envelopeFollow(ax, fs, slowMs, slowMs);
+        tr = min(max((ef ./ max(es, eps) - 1) / max(sens,eps), 0), 1);
+        wetAmt = 1 - tp.depth * tr;
+        n = min([numel(wet) numel(x) numel(wetAmt)]);
+        y = wetAmt(1:n).*wet(1:n) + (1 - wetAmt(1:n)).*(g*x(1:n));
+        return;
+    end
+
     % 0) BAND-LIMITED DRIVE (Phase B voice levers, not part of the Saturn match).
     % Content outside [lf_clean.freq_hz, hf_clean.freq_hz] can be kept out of the
     % nonlinearity and passed through clean:
