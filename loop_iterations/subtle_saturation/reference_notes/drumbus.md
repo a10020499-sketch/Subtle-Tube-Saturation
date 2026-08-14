@@ -170,3 +170,37 @@ chasing a loss that did not happen. Ladder V1/V2/V3 = +0.75 / +1.5 / +1.5 & +1.0
 at 250 / 700 Hz, air and tail unchanged from S3.
 
 **Status: pending_review.**
+
+### iter 06 — transient-preserve detector fixed (supersedes iter 05's U-ladder)
+
+An independent design review flagged that the iter-05 detector never converges in
+steady state, and measurement confirmed it: both envelopes used the same symmetric
+one-pole, so the fast one settled on the PEAK while the slow one settled on the
+MEAN — for a sine those differ by π/2, so the ratio idled at 1.26 and `tr` at 0.52.
+The result silently blended away half the saturation on sustained material:
+**H3 on a steady 1 kHz tone fell 9.1 dB at depth 1.0.** The claim made to the
+listener that the steady state was untouched was wrong.
+
+Fixed two ways:
+1. **Both detectors are now true peak followers** (rise toward the peak, then decay;
+   never pull back toward the instantaneous sample), differing only in time
+   constants. In steady state both sit at the peak, the ratio is 1, `tr` is 0.
+   Plus a 3 dB knee and an 8 dB range with a smoothstep, so detector ripple cannot
+   leak into the blend.
+2. **Residual form** `y = wet + a·(lin − wet)`, where `lin` is the same chain with
+   the waveshaper reduced to its linear term. The modulated quantity is what the
+   curve removed, so it vanishes with the signal and fast changes in `a` cannot
+   click. Using `g·x` as the dry reference (as iter 05 did) would comb as soon as
+   any pre/post EQ stage exists — and the saturation track already has one.
+
+Result — better on both axes at once:
+
+| depth | H3 change on steady tone | TAG Epic_Drum | TAG Drum_Test |
+|---|---|---|---|
+| off | — | −0.62 | −0.20 |
+| 0.5 | −0.13 dB | +0.07 | +0.57 |
+| 0.7 | — | +0.32 | +0.85 |
+| 1.0 | −0.25 dB | **+0.68** | **+1.24** |
+
+(iter 05's broken version reached only +0.23 / +0.25 and destroyed 9.1 dB of
+warmth to get there.) Phase A regression PASS.

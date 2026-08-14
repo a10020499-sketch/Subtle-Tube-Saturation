@@ -86,11 +86,13 @@ function cfg = config()
     % linear path for the first milliseconds of an attack, so impact survives even
     % with the whole spectrum driven into the curve - no band is hardwired to
     % bypass saturation, which keeps that decision in the multiband layer.
-    baseDof.transient.enabled     = false;
-    baseDof.transient.depth       = 0.5;   % 0..1, how far toward dry on a peak
-    baseDof.transient.fast_ms     = 1;
-    baseDof.transient.slow_ms     = 50;
-    baseDof.transient.sensitivity = 0.5;   % ratio excess mapped to full depth
+    baseDof.transient.enabled          = false;
+    baseDof.transient.depth            = 0.5;  % 0..1, how far toward linear on a peak
+    baseDof.transient.knee_db          = 3;    % fast peak must exceed slow by this
+    baseDof.transient.range_db         = 8;    % dB above the knee reaching full depth
+    baseDof.transient.fast_release_ms  = 8;
+    baseDof.transient.slow_attack_ms   = 80;
+    baseDof.transient.slow_release_ms  = 250;
     % output gain compensation (H5)
     baseDof.output.mode    = 'fixed';     % fixed | harmonic_auto
     baseDof.output.gain_db = 0.0;

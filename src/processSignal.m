@@ -25,20 +25,35 @@ function y = processSignal(x, dof, fs, track)
         tp = dof.transient;
         dofNoTP = dof; dofNoTP.transient.enabled = false;
         wet = processSignal(x, dofNoTP, fs, track);
-        g   = smallSignalGain(dofNoTP, fs, track);
-        fastMs = getf(tp,'fast_ms',1); slowMs = getf(tp,'slow_ms',50);
-        sens   = getf(tp,'sensitivity',0.5);
-        ax = abs(x);
-        % The fast detector must RISE quickly (attack) and the slow one must be
-        % sluggish in both directions; that ordering is what makes the ratio spike
-        % at the onset rather than after it. Reacting late is the trap that made
-        % two earlier gain-followers amplify transients instead of shaping them.
-        ef = envelopeFollow(ax, fs, fastMs, fastMs*4);
-        es = envelopeFollow(ax, fs, slowMs, slowMs);
-        tr = min(max((ef ./ max(es, eps) - 1) / max(sens,eps), 0), 1);
-        wetAmt = 1 - tp.depth * tr;
-        n = min([numel(wet) numel(x) numel(wetAmt)]);
-        y = wetAmt(1:n).*wet(1:n) + (1 - wetAmt(1:n)).*(g*x(1:n));
+
+        % Residual form: y = wet + a*(lin - wet). The modulated quantity is what
+        % the CURVE removed, so it vanishes with the signal - fast changes in 'a'
+        % cannot click, unlike modulating a plain gain. 'lin' is the same chain
+        % with the waveshaper reduced to its linear term, so it carries any pre/
+        % post EQ too; using g*x instead would comb as soon as an EQ stage exists.
+        lin = processSignal(x, linearise(dofNoTP), fs, track);
+
+        % BOTH detectors are PEAK followers, differing only in their time
+        % constants, so in true steady state both converge to the peak and the
+        % ratio converges to 1 -> tr = 0 -> output is bit-identical to wet. (A
+        % symmetric one-pole for the slow envelope settles on the MEAN instead,
+        % which for a sine sits pi/2 below the peak: the ratio then idles at 1.26,
+        % tr at 0.52, and half the saturation is silently blended away on
+        % sustained material - measured as 9.1 dB of lost H3 before this fix.)
+        fastRel = getf(tp,'fast_release_ms', 8);
+        slowAtk = getf(tp,'slow_attack_ms', 80);
+        slowRel = getf(tp,'slow_release_ms',250);
+        kneeDb  = getf(tp,'knee_db',   3);
+        rangeDb = getf(tp,'range_db',  8);
+        ef = peakFollow(x, fs, 0,       fastRel);   % instantaneous attack
+        es = peakFollow(x, fs, slowAtk, slowRel);
+        detDb = 20*log10(max(ef,eps) ./ max(es,eps));
+        u  = min(max((detDb - kneeDb) / max(rangeDb,eps), 0), 1);
+        tr = u.^2 .* (3 - 2*u);                     % smoothstep: C1, no corner
+        a  = tp.depth * tr;
+
+        n = min([numel(wet) numel(lin) numel(a)]);
+        y = wet(1:n) + a(1:n) .* (lin(1:n) - wet(1:n));
         return;
     end
 
@@ -156,6 +171,35 @@ function y = processSignal(x, dof, fs, track)
             error('processSignal:output', 'unknown output.mode "%s"', dof.output.mode);
     end
     y = w * g;
+end
+
+function d = linearise(d)
+%LINEARISE  same config with the waveshaper reduced to its linear term, so the
+%   rest of the chain (EQ, oversampling, splits, gain) is preserved exactly.
+    if strcmpi(d.shaper.type,'signpow')
+        d.shaper.powers = d.shaper.powers(1);
+        d.shaper.coeffs = d.shaper.coeffs(1);
+    else
+        d.shaper.type = 'signpow'; d.shaper.powers = 1; d.shaper.coeffs = 1;
+    end
+    if isfield(d,'dynamic_bias'); d.dynamic_bias.enabled = false; end
+end
+
+function env = peakFollow(x, fs, atk_ms, rel_ms)
+%PEAKFOLLOW  true peak follower: rises toward the peak, then DECAYS - it never
+%   pulls back toward the instantaneous sample. That distinction is what lets a
+%   fast and a slow instance agree in steady state (both sit at the peak), which
+%   is what makes a ratio detector idle at exactly 1.
+    ax = abs(x(:));
+    if atk_ms <= 0; ca = 0; else; ca = exp(-1/(fs*atk_ms/1000)); end
+    cr = exp(-1/(fs*rel_ms/1000));
+    env = zeros(numel(ax),1); e = 0;
+    for n = 1:numel(ax)
+        if ax(n) > e; e = ax(n) + (e - ax(n))*ca;   % rise toward the peak
+        else;         e = e*cr;                      % decay only
+        end
+        env(n) = e;
+    end
 end
 
 function v = getf(s, name, dflt)
