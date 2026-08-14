@@ -60,22 +60,53 @@ function y = waveshaper(x, shaper)
             % signal there, so clamp the magnitude at the turnover: the curve then
             % saturates and holds. The join is C1 because the slope is zero there.
             ut = signpowTurnover(p, c);
-            u  = sign(u) .* min(abs(u), ut);
+            % Join the continuation at the top of the MEASURED range (|u|=1, which
+            % is the 0 dBFS test point), never above the turnover. Below the join
+            % the fitted polynomial is used unchanged, so the Phase A match is
+            % untouched; above it the polynomial is unconstrained extrapolation and
+            % is replaced.
+            uj = min(1.0, ut);
             eps_s = 0;
             if isfield(shaper,'smooth_eps') && ~isempty(shaper.smooth_eps)
                 eps_s = shaper.smooth_eps;
             end
+            extend = true;
+            if isfield(shaper,'extend') && ~isempty(shaper.extend); extend = shaper.extend; end
+
+            au = abs(u); su = sign(u);
+            if extend
+                % Smooth asymptotic continuation above the join: matches value AND
+                % slope there (C1) and rises monotonically toward a ceiling. This
+                % is what gives a Drive control real travel - a bare clamp makes
+                % extra drive pure brick-wall limiting, which both stops changing
+                % the voice and generates harsh high-order harmonics.
+                hr = 0.06;
+                if isfield(shaper,'extend_headroom') && ~isempty(shaper.extend_headroom)
+                    hr = shaper.extend_headroom;
+                end
+                [vj, sj] = signpowAt(p, c, uj);
+                fl = vj + max(hr, 1e-6);                 % asymptote
+                over = au > uj;
+                auEff = au; auEff(over) = uj;            % polynomial part, clamped
+            else
+                over = au > uj; auEff = au; auEff(over) = uj;
+            end
+
             y = zeros(size(u));
             if eps_s > 0
-                r2 = u.^2 + eps_s^2;
+                r2 = auEff.^2 + eps_s^2;
                 for i = 1:numel(p)
-                    y = y + c(i) * u .* r2.^((p(i)-1)/2);
+                    y = y + c(i) * su .* auEff .* r2.^((p(i)-1)/2) ./ max(auEff,eps);
                 end
+                y(auEff==0) = 0;
             else
-                su = sign(u); au = abs(u);
                 for i = 1:numel(p)
-                    y = y + c(i) * su .* au.^p(i);
+                    y = y + c(i) * su .* auEff.^p(i);
                 end
+            end
+            if extend && any(over)
+                ext = vj + (fl - vj) .* tanh( sj*(au(over) - uj) / (fl - vj) );
+                y(over) = su(over) .* ext;
             end
         case 'softknee'
             % soft-knee limiter-style curve: linear below knee, tanh above
@@ -92,6 +123,15 @@ function y = waveshaper(x, shaper)
 end
 
 % =========================================================================
+function [v, s] = signpowAt(p, c, u0)
+%SIGNPOWAT  value and slope of sum(c_p*u^p) at u0 > 0.
+    v = 0; s = 0;
+    for i = 1:numel(p)
+        v = v + c(i)*u0^p(i);
+        s = s + c(i)*p(i)*u0^(p(i)-1);
+    end
+end
+
 function ut = signpowTurnover(p, c)
 %SIGNPOWTURNOVER  smallest |u| > 0 at which d/du sum(c_p*|u|^p) reaches zero,
 %   i.e. where the fitted curve stops being monotonic. Inf if it never does.
