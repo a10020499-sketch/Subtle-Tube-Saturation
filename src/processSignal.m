@@ -138,7 +138,26 @@ function y = processSignal(x, dof, fs, track)
         if isfield(dof.dynamic_bias,'gamma'); g = dof.dynamic_bias.gamma; end
         % compressive bias-vs-envelope mapping (gamma<1 lifts low-level bias so the
         % even harmonics fall slower than A, matching the Subtle mode; H8, Iter-3)
-        shaper.bias = shaper.bias + dof.dynamic_bias.depth * biasEnv.^g;  % per-sample bias vector
+        depth = dof.dynamic_bias.depth;
+        % Transient duck (Iter-10). A deeper bias measurably does NOT reduce
+        % transient impact - TAG is identical to 0.01 dB - but a blind A/B still
+        % picked the shallower one as punchier, and the likely reason is masking:
+        % the extra even harmonics sit around the attack and blunt its clarity.
+        % So hold the bias at full depth for sustained material (all of the warmth)
+        % and pull it back only through the attack region, with a longer recovery
+        % than the output-side transient blend so the first tens of ms stay clear.
+        duck = getf(dof.dynamic_bias,'transient_duck',0);
+        if duck > 0
+            dr = getf(dof.dynamic_bias,'duck_release_ms',60);
+            ef = peakFollow(vo, fs*L, 0,  8);
+            es = peakFollow(vo, fs*L, 80, 250);
+            dB = 20*log10(max(ef,eps)./max(es,eps));
+            uu = min(max((dB - 3)/8, 0), 1);
+            trd = uu.^2 .* (3 - 2*uu);
+            trd = peakFollow(trd, fs*L, 0, dr);          % hold the duck open longer
+            depth = depth * (1 - duck*trd);
+        end
+        shaper.bias = shaper.bias + depth .* biasEnv.^g;  % per-sample bias vector
     end
     wo = waveshaper(vo, shaper);
 

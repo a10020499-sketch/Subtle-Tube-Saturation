@@ -16,7 +16,7 @@
       "status": "phase_a_exited",
       "phase_a_exit": {"reason": "human_override", "technical_thresholds_met": false, "approved_by": "human", "iteration": 4, "note": "residual is pure low-level (-13..-24 dBFS, 1-2% THD); exact from -7 dBFS up; musically irrelevant for a bus saturator per Primary Goal"},
       "voice_stage": "enhanced",
-      "voice_iteration": 9,
+      "voice_iteration": 10,
       "voice_pending_review": "saturation FINAL PICKED = Y1 (drive1.65, air+2.5dB@8k). tube: Z2 warmth preferred but listener perceives Z1 as punchier; TAG measures identical (0.88 vs 0.89) so a blind A/B was rendered in output/subtle_tube/voice/enhanced/blindAB to settle it. Bias ladder Z1/Zm/Z2 also rendered.",
       "voice_signoff": {
         "enhanced": false,
@@ -38,7 +38,7 @@
       "status": "phase_a_exited",
       "phase_a_exit": {"reason": "human_override", "technical_thresholds_met": false, "approved_by": "human", "iteration": 3, "note": "H8 dynamic-bias captures the valve character; audible H2/H3 within 1-2 dB; residual is inaudible H4 (-40..-70 dB); accepted per Primary Goal"},
       "voice_stage": "enhanced",
-      "voice_iteration": 9,
+      "voice_iteration": 10,
       "voice_pending_review": "saturation FINAL PICKED = Y1 (drive1.65, air+2.5dB@8k). tube: Z2 warmth preferred but listener perceives Z1 as punchier; TAG measures identical (0.88 vs 0.89) so a blind A/B was rendered in output/subtle_tube/voice/enhanced/blindAB to settle it. Bias ladder Z1/Zm/Z2 also rendered.",
       "voice_signoff": {
         "enhanced": false,

@@ -204,3 +204,34 @@ Result — better on both axes at once:
 
 (iter 05's broken version reached only +0.23 / +0.25 and destroyed 9.1 dB of
 warmth to get there.) Phase A regression PASS.
+
+### iter 10 — blind test outcome, and the bias transient-duck
+
+**Blind A/B (Z1 bias 1.85 vs Z2 bias 2.20, Epic_Drum, anonymised)**: the listener
+picked A as punchier, and A was **Z1** — their sighted impression survived
+blinding. Caveat recorded honestly: one trial of a two-way choice has a 50% guess
+rate, so this is weak evidence, not proof.
+
+TAG says the transient is identical (Z1 0.88 / Z2 0.89 on Epic, 1.62 / 1.62 on
+Drum), so the difference cannot be transient attenuation. The masking hypothesis
+was tested with a new metric, `tools/attackClarity.m` — the nonlinear material the
+processor piles onto the first 30 ms of each detected onset, relative to the dry
+attack:
+
+| variant | H2 (warmth) | attack clarity | TAG Epic | TAG Drum |
+|---|---|---|---|---|
+| Z1 bias 1.85 | −33.5 | −18.0 | 0.88 | 1.62 |
+| Z2 bias 2.20 | −32.0 | −17.8 | 0.89 | 1.62 |
+| Z2 + duck 0.4 | −32.3 | −18.0 | 0.88 | 1.62 |
+| **Z2 + duck 1.0** | **−32.7** | **−18.1** | 0.88 | 1.61 |
+
+So the masking is real but **only 0.2 dB** between Z1 and Z2 — at or below what is
+reliably audible, which is consistent with the blind result being a coin flip.
+
+`dynamic_bias.transient_duck` (new): holds the full bias depth on sustained
+material and pulls it back through the attack region only, with a longer recovery
+than the output-side transient blend. At duck 1.0 it delivers Z2-level warmth
+(−32.7 vs −32.0, against Z1's −33.5) with attack clarity better than Z1's.
+
+**Recommendation: stop here.** Everything still on the table is ≤0.3 dB, which is
+exactly the grinding the Primary Goal forbids.
