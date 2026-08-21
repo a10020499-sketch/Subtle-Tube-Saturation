@@ -60,10 +60,13 @@ function cfg = config()
     baseDof.shaper.bias      = 0.0;       % Even/Odd Blend: DC bias into the nonlinearity
     baseDof.shaper.asymmetry = 0.0;       % Even/Odd Blend: asymmetric gain of +/- halves
     baseDof.shaper.poly_coeffs = [];      % used when type=poly (odd+even terms)
-    % Drive compensation: divide the curve output by drive_k so the linear region
-    % is unaffected by Drive and Drive changes only the AMOUNT of saturation. Left
-    % OFF in the frozen Phase A baseline (where drive_k is 1 and it would be a
-    % no-op anyway); the shipped voices switch it on.
+    % Drive compensation: divide the curve output by drive_k so the linear region is
+    % unaffected by Drive, making Drive change the AMOUNT of saturation only.
+    % OFF everywhere, including the shipped voices. Turning it on shifts their
+    % absolute level (tube -2.28 dB, saturation -4.35 dB) and, because saturation's
+    % upward compressor has an absolute threshold, nudges its dynamics by ~0.3%% RMS
+    % - it moves them off the signed-off F2_Z2 / Y1 sound. Kept available for a
+    % future voice; not applied to an approved one.
     baseDof.shaper.drive_compensate = false;
     % Dynamic Energy Control (H9) -- bypass in Phase A
     baseDof.dec.mode      = 'bypass';     % bypass | soft_compression | env_mod | micro_sag | level_gain
@@ -183,7 +186,6 @@ function cfg = config()
     % measurably orthogonal (drive moves H3 only, bias moves H2 only), which is why
     % "breakup is enough, more warmth" was directly dialable.
     v.shaper.drive_k = 1.30;
-    v.shaper.drive_compensate = true;   % Drive changes saturation, not level
     v.dynamic_bias.depth = 0.0757 * 2.20;
     v.dynamic_bias.transient_duck = 0;   % listener chose F2 (no duck) over F3
     cfg.voice.subtle_tube.final = v;
@@ -211,7 +213,6 @@ function cfg = config()
     % excitement (+2.3 dB of 2-8 kHz harmonics) and the missing body (+2.3 dB of
     % 200-2000 Hz), without any EQ touching the midrange.
     v.shaper.drive_k = 1.65;
-    v.shaper.drive_compensate = true;   % Drive changes saturation, not level
     cfg.voice.subtle_saturation.final = v;
 
     % ---- loudness voicings (see LOUDNESS_NOTES.md) -------------------------

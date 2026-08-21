@@ -235,3 +235,33 @@ on Drive, so Drive cannot smuggle a change into the compressor. Compensating at 
 very end would leave the compressor seeing a drive-scaled signal, i.e. Drive would
 still change the dynamics. If the pre-compensation compressor behaviour is wanted
 back exactly, shift `dec.threshold_db` by the same amount (−30 → −25.65 dB).
+
+## 10. Reverted to the signed-off voices
+
+`drive_compensate` is now OFF everywhere, including the shipped voices, at the
+listener's request: the voices are back at exactly the approved **Tube = F2_Z2** and
+**Saturation = Y1**. The mechanism and the code stay in the repo for a future voice
+— it is the right fix for Drive doubling as a level control — but it is not applied
+to an already-approved sound, because enabling it moves the level (tube −2.28 dB,
+saturation −4.35 dB) and nudges saturation's dynamics by ~0.3 % RMS.
+
+Everything else from sections 6–9 is kept, because none of it changes an approved
+voice: the 48 kHz sample-rate fix (which was blocking the tool on real material),
+the output trim and `suggestTrim`, the per-band trim, the linear dry/wet law, the
+bypass-ignores-trim fix, and `writeAudioSafe`.
+
+**Verified back at the approved sound** by reproducing the archived audition renders
+end to end:
+
+| voice | material | vs archive |
+|---|---|---|
+| tube F2_Z2 | Disco | −125.8 dB |
+| tube F2_Z2 | Epic_Drum | −128.2 dB * |
+| saturation Y1 | Disco | −125.8 dB |
+| saturation Y1 | Epic_Drum | −128.1 dB |
+
+\* first measured −81.4 dB, which turned out to be the *archive* being wrong, not
+the voice: the loudness-matched tube render peaks at 1.0127 and the old writer
+hard-clipped 3 samples to 1.0000. Applying the same clip to the reproduction nulls
+at −128.2 dB. A neat demonstration of why `writeAudioSafe` was needed — that render
+would now be written as float with a warning instead of being silently shaved.
