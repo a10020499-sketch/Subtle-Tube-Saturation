@@ -146,6 +146,68 @@ function cfg = config()
     cfg.tracks.subtle_tube.dof.dynamic_bias.release_ms = 30;
 
     % =====================================================================
+    % PHASE B VOICES — the signed-off product tones (SPECIFICATION 1, 4.6)
+    % =====================================================================
+    % cfg.tracks.<t>.dof above stays FROZEN at the Phase A saturn-like baseline so
+    % tools/regressionCheck.m and the R6 reproducibility check remain meaningful.
+    % The voice the product actually ships is here, as cfg.voice.<t>.final, and it
+    % is what the multiband layer loads. Saturn 2 is no longer an optimisation
+    % target for any of these values (R-ReferenceFreeze); every one of them was
+    % chosen by the listener across ten voice iterations, with the reasoning in
+    % loop_iterations/<t>/reference_notes/drumbus.md.
+
+    % ---- subtle_tube -final  (listener pick "F2_Z2", voice iter 10) --------
+    v = cfg.tracks.subtle_tube.dof;
+    % Clean highs: only content below 8 kHz fully enters the nonlinearity. Cures
+    % the intermodulation grit ("fizzy/prickly") that the unsplit model shares with
+    % Saturn itself; beta keeps 75% of the HF driven so the density stays, and
+    % follow modulates the clean band by the curve's gain reduction so the peak
+    % compression that reads as "thickness" is not lost.
+    v.hf_clean.enabled = true; v.hf_clean.freq_hz = 8000;
+    v.hf_clean.gain_match = true; v.hf_clean.beta = 0.75; v.hf_clean.follow = 1.0;
+    v.hf_clean.follow_attack_ms = 1; v.hf_clean.follow_release_ms = 30;
+    % Transient preserve: leans toward the linear path for the first milliseconds
+    % of an attack, so impact survives with the whole spectrum saturated. Chosen
+    % over a low-band bypass deliberately - no frequency range is hardwired to skip
+    % saturation, because that decision belongs to the multiband layer.
+    v.transient.enabled = true; v.transient.depth = 1.0;
+    v.transient.knee_db = 3; v.transient.range_db = 8;
+    v.transient.fast_release_ms = 8;
+    v.transient.slow_attack_ms = 80; v.transient.slow_release_ms = 250;
+    % Character: drive x1.30 for breakup, bias depth x2.20 for warmth. The two are
+    % measurably orthogonal (drive moves H3 only, bias moves H2 only), which is why
+    % "breakup is enough, more warmth" was directly dialable.
+    v.shaper.drive_k = 1.30;
+    v.dynamic_bias.depth = 0.0757 * 2.20;
+    v.dynamic_bias.transient_duck = 0;   % listener chose F2 (no duck) over F3
+    cfg.voice.subtle_tube.final = v;
+
+    % ---- subtle_saturation -final  (listener pick "Y1", voice iter 08) -----
+    v = cfg.tracks.subtle_saturation.dof;
+    v.hf_clean.enabled = true; v.hf_clean.freq_hz = 8000;
+    v.hf_clean.gain_match = true; v.hf_clean.beta = 0.50; v.hf_clean.follow = 1.0;
+    v.hf_clean.follow_attack_ms = 1; v.hf_clean.follow_release_ms = 30;
+    % Air: two high shelves at 8 kHz totalling +5.5 dB. Deliberately NOT a midrange
+    % boost - a 250 Hz peak restored thickness in an earlier iteration but closed
+    % the openness the listener valued, so body comes from drive instead.
+    v.postEQ.stages = struct( ...
+        'type',   {'highshelf','highshelf'}, ...
+        'freq_hz',{8000,8000}, ...
+        'gain_db',{3.0,2.5}, ...
+        'q',      {0.7,0.7});
+    % Upward compression lifts low-level detail so reverb tails and air come
+    % forward. Attack must stay fast: a slow one lets the envelope read a transient
+    % as quiet and amplifies it instead of lifting the tail.
+    v.dec.mode = 'upward'; v.dec.position = 'post';
+    v.dec.ratio = 1.5; v.dec.threshold_db = -30; v.dec.range_db = 18;
+    v.dec.attack_ms = 2; v.dec.release_ms = 300;
+    % Drive x1.65 - one lever that delivered both the requested upper-mid
+    % excitement (+2.3 dB of 2-8 kHz harmonics) and the missing body (+2.3 dB of
+    % 200-2000 Hz), without any EQ touching the midrange.
+    v.shaper.drive_k = 1.65;
+    cfg.voice.subtle_saturation.final = v;
+
+    % =====================================================================
     % MULTIBAND TOOL LAYER — own feature, NOT matched to Saturn 2 (3.4/3.5)
     % =====================================================================
     cfg.multiband = struct();

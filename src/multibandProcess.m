@@ -9,7 +9,8 @@ function y = multibandProcess(x, cfg)
 %   Per-band settings come from cfg.multiband.bands(b): .mode
 %   ('bypass'|'subtle_saturation'|'subtle_tube'), .drive (linear input pre-gain
 %   into the core), .dry_wet (0..1). Colour cores use each track's frozen
-%   saturn-like Phase A config (cfg.tracks.<mode>.dof) until Phase B -final exists.
+%   signed-off Phase B voice (cfg.voice.<mode>.final), falling back to the frozen
+%   Phase A baseline (cfg.tracks.<mode>.dof) only if no voice has been locked yet.
 
     x  = x(:);
     fs = cfg.audio.fs;
@@ -28,11 +29,23 @@ function y = multibandProcess(x, cfg)
                 outBands{b} = dryBand;                 % dry/wet irrelevant when bypassed
             case {'subtle_saturation','subtle_tube'}
                 drive = 1.0; if isfield(bp,'drive') && ~isempty(bp.drive); drive = bp.drive; end
-                wet = processSignal(drive*dryBand, cfg.tracks.(bp.mode).dof, fs, bp.mode);
+                wet = processSignal(drive*dryBand, coreDof(cfg, bp.mode), fs, bp.mode);
                 outBands{b} = dryWetMixer(dryBand, wet, bp.dry_wet, mb.crossfade);
             otherwise
                 error('multibandProcess:mode', 'band %d unknown mode "%s"', b, bp.mode);
         end
     end
     y = bandSummary(outBands);
+end
+
+function dof = coreDof(cfg, mode)
+%COREDOF  the coloration config the tool should use for a band: the signed-off
+%   Phase B voice when one exists, else the frozen Phase A saturn-like baseline.
+%   Keeping these separate is what lets tools/regressionCheck.m keep verifying
+%   Phase A reproducibility while the product ships the tuned voice.
+    if isfield(cfg,'voice') && isfield(cfg.voice, mode) && isfield(cfg.voice.(mode),'final')
+        dof = cfg.voice.(mode).final;
+    else
+        dof = cfg.tracks.(mode).dof;
+    end
 end

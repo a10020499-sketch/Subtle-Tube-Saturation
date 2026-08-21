@@ -26,7 +26,9 @@ function report = verifyMultiband(cfg)
     % --- 3/4) per-band dry/wet endpoints (use band 2, subtle_tube) ----------
     bands = crossoverBank(x, mb.crossover_hz, fs);
     bi = min(2, mb.num_bands); dryBand = bands{bi};
-    core = processSignal(dryBand, cfg.tracks.subtle_tube.dof, fs, 'subtle_tube');
+    coreCfg = cfg.tracks.subtle_tube.dof;
+    if isfield(cfg,'voice') && isfield(cfg.voice,'subtle_tube'); coreCfg = cfg.voice.subtle_tube.final; end
+    core = processSignal(dryBand, coreCfg, fs, 'subtle_tube');
     y0   = dryWetMixer(dryBand, core, 0, mb.crossfade);   % wet 0%
     y100 = dryWetMixer(dryBand, core, 1, mb.crossfade);   % wet 100%
     e3 = reldb(y0, dryBand);
