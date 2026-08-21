@@ -207,6 +207,15 @@ function cfg = config()
     v.shaper.drive_k = 1.65;
     cfg.voice.subtle_saturation.final = v;
 
+    % ---- loudness voicings (see LOUDNESS_NOTES.md) -------------------------
+    % Saturation as a loudness tool needs the OPPOSITE of the transparency and
+    % impact levers: peak compression is what buys loudness at a fixed ceiling.
+    % These undo hf_clean.beta, transient preserve and the air shelf, and push
+    % drive. Use them FULL-BAND - see the note about band summation in
+    % LOUDNESS_NOTES.md.
+    cfg.voice.subtle_tube.loud       = loudVoice(cfg.voice.subtle_tube.final, 1.3);
+    cfg.voice.subtle_saturation.loud = loudVoice(cfg.voice.subtle_saturation.final, 1.3);
+
     % =====================================================================
     % MULTIBAND TOOL LAYER — own feature, NOT matched to Saturn 2 (3.4/3.5)
     % =====================================================================

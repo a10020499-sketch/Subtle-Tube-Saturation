@@ -16,7 +16,7 @@ function report = verifyMultiband(cfg)
     % --- 1) full bypass through the top-level processor ---------------------
     cfgB = cfg;
     for b=1:mb.num_bands; cfgB.multiband.bands(b).mode='bypass'; end
-    yB = multibandProcess(x, cfgB);
+    yB = multibandProcess(x, cfgB, fs);
     e1 = reldb(yB, x);
 
     % --- 2) crossover-only reconstruction ----------------------------------
@@ -40,7 +40,7 @@ function report = verifyMultiband(cfg)
         cfgM.multiband.bands(b).mode = modes{min(b,numel(modes))};
         cfgM.multiband.bands(b).dry_wet = 1.0; cfgM.multiband.bands(b).drive = 1.0;
     end
-    yM = multibandProcess(x, cfgM);
+    yM = multibandProcess(x, cfgM, fs);
     finite_ok = all(isfinite(yM)); bounded_ok = max(abs(yM)) < 4;
     % click proxy: the colored/summed output must not introduce sample-to-sample
     % steps far larger than the input already has (broadband input has large jumps

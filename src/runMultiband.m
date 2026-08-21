@@ -19,10 +19,12 @@ function runMultiband(inPath, outPath, mbOverride)
     end
 
     [x, fs] = audioread(inPath);
-    assert(fs == cfg.audio.fs, 'input fs %d ~= config fs %d', fs, cfg.audio.fs);
+    % any sample rate is fine - the coloration model is rate-agnostic (memoryless
+    % curve, ms-based dynamics, relative oversampling), so process at the file's own
+    % rate rather than forcing the measurement rate.
     y = zeros(size(x));
     for ch = 1:size(x,2)
-        y(:,ch) = multibandProcess(x(:,ch), cfg);
+        y(:,ch) = multibandProcess(x(:,ch), cfg, fs);
     end
     if ~exist(fileparts(outPath),'dir') && ~isempty(fileparts(outPath)); mkdir(fileparts(outPath)); end
     audiowrite(outPath, max(min(y,1),-1), fs, 'BitsPerSample', cfg.audio.bit_depth);
