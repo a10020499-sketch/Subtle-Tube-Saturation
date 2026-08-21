@@ -139,3 +139,46 @@ rendered two ways:
   benefit.
 - `__loudmatch` — everything at the same loudness. Cancels the benefit so the
   timbre cost can be judged on its own.
+
+## 8. Making the level path honest (implemented)
+
+The requirement: adding colour should change the level by exactly as much as the
+colour actually contributes — nothing in the signal path matching or normalising —
+with manual trims to pull it back.
+
+**Dry/Wet law changed to `linear`.** An equal-power law assumes the two sides are
+uncorrelated; a saturator's dry and wet are the same signal plus harmonics, so
+equal-power sums them above unity mid-knob. Measured on Disco_Test, relative to
+fully dry:
+
+| law | 25 % | 50 % | 75 % | 100 % |
+|---|---|---|---|---|
+| equal_power (old default) | +2.52 | **+3.35** | +2.81 | +0.70 |
+| **linear (new default)** | +0.17 | +0.34 | +0.52 | **+0.70** |
+
+The +3.35 dB hump had nothing to do with the colour. Linear rises monotonically to
++0.70 dB, which is exactly what these harmonics contribute at 100 % wet. Both laws
+still hit the endpoints exactly, re-verified: wet=0 % nulls against dry at
+−188.7 dB, and the multiband gates are unchanged.
+
+**Per-band trim added**: `cfg.multiband.bands(b).output_gain_db`, applied after that
+band's dry/wet mix, and to bypassed bands too so a band can be balanced without
+colouring it. Verified against an analytic expectation at −6 / −3 / +3 dB:
+error −187 to −191 dB.
+
+### Still open, from the same audit
+
+- **`drive_k` doubles as a linear gain.** Saturation's voice carries +3.00 dB of
+  pure linear gain (drive 1.65 × the curve's c1 = 0.8484), so turning Drive up is
+  partly just "louder" rather than "more saturated". Fixing it means a *static*
+  calibration — define Drive so the linear region stays unity — which is a constant,
+  not program-dependent matching, so it does not conflict with the requirement. It
+  would change the absolute level of the current voices without changing their tone.
+- **The upward compressor adds up to +6 dB on quiet material** (saturation voice,
+  tapering to zero by −20 dBFS). Working as designed and chosen for reverb tails,
+  but it is level from dynamics, not from harmonics — worth knowing it is there.
+- **`output.mode = 'harmonic_auto'`** still exists in the core as an option. It
+  matches output RMS to input RMS, i.e. it is automatic matching, and should be
+  removed from the shipping path or clearly marked audition-only.
+- **`runMultiband` hard-clips on write** (`max(min(y,1),-1)`). For a tool that never
+  normalises, it should warn or write float rather than silently damage the file.

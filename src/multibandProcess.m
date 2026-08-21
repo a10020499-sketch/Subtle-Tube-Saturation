@@ -38,6 +38,13 @@ function y = multibandProcess(x, cfg, fs)
             otherwise
                 error('multibandProcess:mode', 'band %d unknown mode "%s"', b, bp.mode);
         end
+        % Per-band trim, after that band's dry/wet mix so it trims what you hear
+        % from the band. Applies to bypassed bands too, so a band can be balanced
+        % without colouring it. Nothing here adjusts level on its own - this is the
+        % manual control that makes that safe.
+        if isfield(bp,'output_gain_db') && ~isempty(bp.output_gain_db) && bp.output_gain_db ~= 0
+            outBands{b} = outBands{b} * 10^(bp.output_gain_db/20);
+        end
     end
     y = bandSummary(outBands);
 

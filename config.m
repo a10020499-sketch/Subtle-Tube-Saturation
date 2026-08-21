@@ -223,13 +223,27 @@ function cfg = config()
     cfg.multiband.num_bands = 4;                    % adjustable 2..6
     cfg.multiband.crossover_hz = [250 1000 4000];   % N-1 crossover points
     cfg.multiband.crossover_type = 'LR4';           % Linkwitz-Riley 4th order
-    % per-band: mode / drive / dry-wet (0..1). Populated with sensible defaults.
+    % per-band: mode / drive / dry-wet (0..1) / output trim. Sensible defaults.
     for b = 1:cfg.multiband.num_bands
         cfg.multiband.bands(b).mode    = 'bypass';  % bypass | subtle_saturation | subtle_tube
         cfg.multiband.bands(b).drive   = 0.0;
         cfg.multiband.bands(b).dry_wet = 0.0;       % 0=dry ... 1=wet
+        % Manual per-band trim, applied AFTER that band's dry/wet mix. This is the
+        % knob for "the harmonics made this band louder than I want" - nothing in
+        % the signal path adjusts level automatically, by design.
+        cfg.multiband.bands(b).output_gain_db = 0.0;
     end
-    cfg.multiband.crossfade = 'equal_power';        % equal_power | linear (see R-DryWet)
+    % Dry/wet law. LINEAR, and the reason is measured (R-DryWet asks for it to be
+    % recorded): an equal-power law assumes the two sides are UNCORRELATED, but a
+    % saturator's dry and wet are nearly the same signal plus harmonics, so
+    % equal-power sums them above unity in the middle of the knob. Measured on
+    % Disco_Test, level relative to fully dry:
+    %     equal_power   25% +2.52   50% +3.35   75% +2.81   100% +0.70 dB
+    %     linear        25% +0.17   50% +0.34   75% +0.52   100% +0.70 dB
+    % The +3.35 dB hump has nothing to do with the colour being added. Linear rises
+    % monotonically to exactly what the harmonics contribute, which is the point of
+    % the tool. Both laws still hit the endpoints exactly (R-DryWet 1 and 2).
+    cfg.multiband.crossfade = 'linear';             % linear | equal_power
     % ---- output stage (see LOUDNESS_NOTES.md) ------------------------------
     % Manual trim on the summed output. Needed because band summation RAISES peaks
     % (peaks in different bands do not coincide, so the sum keeps them - measured
