@@ -108,3 +108,34 @@ An **auto output gain** (match output loudness back to the input) is useful for
 A/B auditioning — it is exactly why every Phase B listening set was loudness
 matched — but it must default to OFF, because switching it on hands back the
 loudness this whole note is about.
+
+## 6. The output stage as built
+
+`cfg.multiband.output_gain_db` — a plain trim on the summed output, default 0.
+`tools/suggestTrim.m` measures the true peak across your material with the current
+settings and tells you the value to use. Example, 4 bands at 50 % wet:
+
+```
+  Disco_Test.wav             0.699  ( -3.11 dBFS)
+  Epic_Drum_Test.wav         1.334  ( +2.50 dBFS) <-- would clip
+  EDM_Test.wav               0.856  ( -1.36 dBFS)
+  suggested output_gain_db = -3.50   (ceiling -1 dBFS)
+```
+
+Note how material-dependent that is — the drum file needs 3.5 dB of trim while the
+disco file has 3 dB spare. That is why it is a control and not a fixed constant.
+
+`cfg.multiband.auto_gain` — `'off'` (default) / `'rms'` / `'lufs'`. Off on purpose.
+Turning it on matches the output back to the input, which is the right thing when
+A/B-ing timbre and the wrong thing when loudness is the point.
+
+## 7. Audition sets
+
+`output/<track>/voice/loud/iter_00/` holds both voices on four programme files,
+rendered two ways:
+
+- `__peaknorm` — everything at the same peak (−1 dBFS). This is how the tool is
+  actually used, so the loudness difference is audible. That difference is the
+  benefit.
+- `__loudmatch` — everything at the same loudness. Cancels the benefit so the
+  timbre cost can be judged on its own.

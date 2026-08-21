@@ -40,6 +40,33 @@ function y = multibandProcess(x, cfg, fs)
         end
     end
     y = bandSummary(outBands);
+
+    % ---- output stage ------------------------------------------------------
+    % Band summation raises peaks rather than lowering them (peaks in different
+    % bands do not coincide, so the sum keeps them - measured 1.307 on drum
+    % material at 50% wet), and writing to a fixed-point file hard-clips above 1.
+    % So a trim is needed. It is a plain gain, deliberately not a limiter: a
+    % limiter is an unmeasured nonlinearity that would squash exactly the
+    % transients the voice tuning protected, and the host already has one.
+    ag = 'off';
+    if isfield(mb,'auto_gain') && ~isempty(mb.auto_gain); ag = mb.auto_gain; end
+    switch lower(ag)
+        case 'off'
+            % nothing - keep whatever loudness the colour earned. This is the
+            % default because matching the output back to the input hands back the
+            % loudness that saturation exists to buy.
+        case {'rms','lufs'}
+            % A/B aid only: equalises perceived level so timbre can be judged
+            % without the "louder sounds better" bias. Never leave this on in
+            % production if loudness is the goal.
+            ri = sqrt(mean(x.^2)); ro = sqrt(mean(y.^2));
+            if ro > 0; y = y * (ri/ro); end
+        otherwise
+            error('multibandProcess:auto_gain', 'unknown auto_gain "%s"', ag);
+    end
+    if isfield(mb,'output_gain_db') && ~isempty(mb.output_gain_db)
+        y = y * 10^(mb.output_gain_db/20);
+    end
 end
 
 function dof = coreDof(cfg, mode, bp)

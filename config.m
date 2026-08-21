@@ -230,6 +230,17 @@ function cfg = config()
         cfg.multiband.bands(b).dry_wet = 0.0;       % 0=dry ... 1=wet
     end
     cfg.multiband.crossfade = 'equal_power';        % equal_power | linear (see R-DryWet)
+    % ---- output stage (see LOUDNESS_NOTES.md) ------------------------------
+    % Manual trim on the summed output. Needed because band summation RAISES peaks
+    % (peaks in different bands do not coincide, so the sum keeps them - measured
+    % 1.307 on drum material at 50% wet) and a fixed-point write hard-clips above 1.
+    % Use tools/suggestTrim.m to get the value for a given setting and material.
+    cfg.multiband.output_gain_db = 0.0;
+    % Auto gain: 'off' (default) | 'rms' | 'lufs'. OFF on purpose - matching the
+    % output back to the input hands back exactly the loudness that saturation is
+    % being used to buy. Switch it on only to A/B timbre without the
+    % "louder sounds better" bias, the way every Phase B listening set was matched.
+    cfg.multiband.auto_gain = 'off';
 
     % ---- metric convergence targets (Phase A, 5.1) -------------------------
     cfg.targets = struct();
