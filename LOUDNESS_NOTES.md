@@ -265,3 +265,22 @@ the voice: the loudness-matched tube render peaks at 1.0127 and the old writer
 hard-clipped 3 samples to 1.0000. Applying the same clip to the reproduction nulls
 at −128.2 dB. A neat demonstration of why `writeAudioSafe` was needed — that render
 would now be written as float with a warning instead of being silently shaved.
+
+## 11. A mono/stereo mistake in an audition set
+
+The listener noticed `Disco_Test__subtle_saturation__1before.wav` (the drive-
+compensation A/B set) sounding different from `Disco_Test__final_raw.wav` (the final
+pack), and was right to ask. Cause: the A/B render took `x = x(:,1)` — **left
+channel only** — while the final pack processed both channels. Peaks were identical
+to four decimals (0.5369 vs 0.5369) and RMS matched to 0.01 dB, so the colour was
+never different; the audible difference was the image collapsing to mono, and
+nothing in the filename said so.
+
+Replaced by `tools/renderVoiceAB.m`, which always processes every channel of the
+source and prints the channel count, peak and written format for each file. The new
+stereo FINAL render nulls against the final pack at **−201.4 dB**. The misleading
+mono folder was deleted.
+
+Lesson for any future audition set: process the source's own channel count. A mono
+fold-down changes the image as well as the tone, which makes an A/B against a stereo
+render meaningless — and it looks like a processing difference.
