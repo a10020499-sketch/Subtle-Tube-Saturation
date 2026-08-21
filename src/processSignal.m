@@ -161,6 +161,21 @@ function y = processSignal(x, dof, fs, track)
     end
     wo = waveshaper(vo, shaper);
 
+    % Drive compensation. drive_k scales the signal INTO the curve, so it doubles
+    % as a linear gain: the small-signal gain is drive_k * c1, and turning Drive up
+    % makes everything louder as well as more saturated. Dividing the output back
+    % by drive_k leaves the linear region at c1 whatever Drive is set to, so Drive
+    % changes the AMOUNT OF SATURATION only - which is what a drive control should
+    % do, and what makes any level rise attributable to the harmonics.
+    % Chosen to divide by drive_k rather than by drive_k*c1: at drive_k = 1 the
+    % compensation is exactly 1, so the fitted curve and the frozen Phase A
+    % baseline are untouched. (c1 ~ 0.85, i.e. -1.4 dB, is inherited from the
+    % Saturn fit - add output gain if unity is wanted.)
+    if isfield(dof.shaper,'drive_compensate') && dof.shaper.drive_compensate ...
+            && dof.shaper.drive_k ~= 0
+        wo = wo / dof.shaper.drive_k;
+    end
+
     % 5) Oversample down
     if L > 1
         w = resample(wo, 1, L);

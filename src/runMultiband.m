@@ -27,7 +27,10 @@ function runMultiband(inPath, outPath, mbOverride)
         y(:,ch) = multibandProcess(x(:,ch), cfg, fs);
     end
     if ~exist(fileparts(outPath),'dir') && ~isempty(fileparts(outPath)); mkdir(fileparts(outPath)); end
-    audiowrite(outPath, max(min(y,1),-1), fs, 'BitsPerSample', cfg.audio.bit_depth);
-    fprintf('runMultiband: %s -> %s (%d bands, crossovers [%s] Hz)\n', ...
-        inPath, outPath, cfg.multiband.num_bands, num2str(cfg.multiband.crossover_hz));
+    % Never clip silently: writeAudioSafe writes fixed-point when it fits and
+    % 32-bit float when it does not, and says so.
+    wi = writeAudioSafe(outPath, y, fs, cfg.audio.bit_depth);
+    fprintf('runMultiband: %s -> %s (%d bands, crossovers [%s] Hz, peak %.3f, %s)\n', ...
+        inPath, outPath, cfg.multiband.num_bands, num2str(cfg.multiband.crossover_hz), ...
+        wi.peak, wi.format);
 end

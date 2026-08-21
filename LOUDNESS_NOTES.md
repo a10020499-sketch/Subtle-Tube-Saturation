@@ -191,3 +191,47 @@ while a coloured band still honours its trim to exactly −6.0 dB.
   removed from the shipping path or clearly marked audition-only.
 - **`runMultiband` hard-clips on write** (`max(min(y,1),-1)`). For a tool that never
   normalises, it should warn or write float rather than silently damage the file.
+
+## 9. Drive made a saturation control, and no more silent clipping
+
+**Writing.** `src/writeAudioSafe.m` replaces the `max(min(y,1),-1)` in
+`runMultiband`. If the signal fits the requested fixed-point format it is written as
+asked; if it exceeds full scale the file is written as **32-bit float**, which
+stores the overshoot exactly, and a warning names the peak. Verified: a pushed
+4-band setting peaking at 1.086 wrote float32 with 1.086 intact in the file, while
+the same setting with a −6 dB trim wrote int24 at 0.544. A tool that never
+normalises should not quietly clip on the way out either.
+
+**Drive.** `shaper.drive_compensate` divides the curve output by `drive_k`, so the
+linear region no longer moves with Drive:
+
+| voice | drive 1.00 | 1.30 | 1.65 | 2.00 |
+|---|---|---|---|---|
+| tube | −1.81 dB | −1.82 | −1.84 | −1.86 |
+| saturation | −1.40 dB | −1.41 | −1.43 | −1.45 |
+
+Drive now changes only the *amount* of saturation. It divides by `drive_k` rather
+than `drive_k·c1` on purpose: at drive 1.0 the compensation is exactly 1, so the
+fitted curve and the frozen Phase A baseline are untouched (regression still PASS).
+The residual −1.4/−1.8 dB is the curve's own `c1`, inherited from the Saturn fit;
+add output gain if unity is wanted.
+
+Effect on the shipped voices — the level drops, the tone does not:
+
+| voice | level change | tone difference once level-matched |
+|---|---|---|
+| tube final | −2.28 dB | **−190.5 dB** (identical) |
+| saturation final | −4.35 dB | −49.7 dB |
+
+**Why saturation is not an exact null, and it matters.** Its upward compressor has
+an *absolute* threshold (−30 dB). Compensation is applied right after the
+waveshaper, so the compressor now sees a 4.35 dB quieter signal and lifts slightly
+more. Consequences measured: tone differs by −49.7 dB (about 0.3 % RMS) and the
+`loud` preset's benefit moves from +2.37 to +1.77 dB at equal peak.
+
+That placement is deliberate and is the better of the two options: compensating
+after the waveshaper means everything downstream sees a level that does not depend
+on Drive, so Drive cannot smuggle a change into the compressor. Compensating at the
+very end would leave the compressor seeing a drive-scaled signal, i.e. Drive would
+still change the dynamics. If the pre-compensation compressor behaviour is wanted
+back exactly, shift `dec.threshold_db` by the same amount (−30 → −25.65 dB).
