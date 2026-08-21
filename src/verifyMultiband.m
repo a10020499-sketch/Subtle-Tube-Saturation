@@ -6,6 +6,8 @@ function report = verifyMultiband(cfg)
 %     3) per-band Wet=0%% equals that band's dry-filtered signal    (< -80 dB)
 %     4) per-band Wet=100%% equals the colour-core output exactly   (< -80 dB)
 %     5) mixed-mode render is finite/bounded and click-free (max |Δ| sane)
+%     6) a bypassed band ignores its own output trim, so the all-bypass
+%        reconstruction holds whatever trims are left configured  (< -60 dB)
 %   Returns a struct of dB errors and pass flags.
 
     if nargin < 1 || isempty(cfg); cfg = config(); end
@@ -47,11 +49,23 @@ function report = verifyMultiband(cfg)
     % inherently, so judge relative to the input, not an absolute threshold).
     maxJump = max(abs(diff(yM))); jump_ok = maxJump < 3*max(abs(diff(x)));
 
+    % --- 6) bypass must ignore a per-band trim -----------------------------
+    % The all-bypass reconstruction guarantee has to hold whatever else is left
+    % configured, so a stale per-band trim must not leak through a bypassed band.
+    % Without this the gate above passes only because the trims happen to be zero.
+    cfgT = cfg; trims = [-6 +4 -2 +3];
+    for b=1:mb.num_bands
+        cfgT.multiband.bands(b).mode = 'bypass';
+        cfgT.multiband.bands(b).output_gain_db = trims(min(b,numel(trims)));
+    end
+    e6 = reldb(multibandProcess(x, cfgT, fs), x);
+
     report = struct('bypass_recon_db', e1, 'crossover_recon_db', e2, ...
         'wet0_db', e3, 'wet100_db', e4, ...
         'mixed_finite', finite_ok, 'mixed_bounded', bounded_ok, ...
-        'mixed_maxjump', maxJump, 'mixed_clickfree', jump_ok);
-    report.pass = e1 < -60 && e2 < -60 && e3 < -80 && e4 < -80 && ...
+        'mixed_maxjump', maxJump, 'mixed_clickfree', jump_ok, ...
+        'bypass_ignores_trim_db', e6);
+    report.pass = e1 < -60 && e2 < -60 && e3 < -80 && e4 < -80 && e6 < -60 && ...
                   finite_ok && bounded_ok && jump_ok;
 
     fprintf(['multiband verify:\n' ...
@@ -60,7 +74,8 @@ function report = verifyMultiband(cfg)
         '  3 band Wet=0%%%%         = %7.1f dB  (<-80)\n' ...
         '  4 band Wet=100%%%%       = %7.1f dB  (<-80)\n' ...
         '  5 mixed-mode: finite=%d bounded=%d maxjump=%.3f clickfree=%d\n' ...
-        '  PASS=%d\n'], e1,e2,e3,e4, finite_ok,bounded_ok,maxJump,jump_ok, report.pass);
+        '  6 bypass ignores trim= %7.1f dB  (<-60)\n' ...
+        '  PASS=%d\n'], e1,e2,e3,e4, finite_ok,bounded_ok,maxJump,jump_ok, e6, report.pass);
 end
 
 function d = reldb(a, b)

@@ -162,9 +162,18 @@ still hit the endpoints exactly, re-verified: wet=0 % nulls against dry at
 −188.7 dB, and the multiband gates are unchanged.
 
 **Per-band trim added**: `cfg.multiband.bands(b).output_gain_db`, applied after that
-band's dry/wet mix, and to bypassed bands too so a band can be balanced without
-colouring it. Verified against an analytic expectation at −6 / −3 / +3 dB:
+band's dry/wet mix. Verified against an analytic expectation at −6 / −3 / +3 dB:
 error −187 to −191 dB.
+
+**A bypassed band ignores its own trim.** Bypass has to mean the band is untouched,
+or the §3.4/5.3 guarantee that an all-bypass setting sums back to the input would
+silently depend on no stale trim being left behind. The first version of the trim
+applied to bypassed bands too (the thinking was "balance a band without colouring
+it"), and the existing gate did not catch it because it happened to test with all
+trims at zero. Fixed, and `verifyMultiband` gained test 6: set a non-zero trim on
+every band, bypass them all, and the reconstruction must still null. It measures
+−185.4 dB, and −321.4 dB on real material with −6 dB trims left on all four bands,
+while a coloured band still honours its trim to exactly −6.0 dB.
 
 ### Still open, from the same audit
 

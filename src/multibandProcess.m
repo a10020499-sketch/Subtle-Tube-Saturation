@@ -39,10 +39,12 @@ function y = multibandProcess(x, cfg, fs)
                 error('multibandProcess:mode', 'band %d unknown mode "%s"', b, bp.mode);
         end
         % Per-band trim, after that band's dry/wet mix so it trims what you hear
-        % from the band. Applies to bypassed bands too, so a band can be balanced
-        % without colouring it. Nothing here adjusts level on its own - this is the
-        % manual control that makes that safe.
-        if isfield(bp,'output_gain_db') && ~isempty(bp.output_gain_db) && bp.output_gain_db ~= 0
+        % from the band. NOT applied when the band is bypassed: bypass has to mean
+        % the band is untouched, or the guarantee that an all-bypass setting sums
+        % back to the input exactly (SPECIFICATION 3.4 / 5.3) would depend on no
+        % stale trim being left behind. verifyMultiband test 6 locks that down.
+        if ~strcmpi(bp.mode,'bypass') && isfield(bp,'output_gain_db') ...
+                && ~isempty(bp.output_gain_db) && bp.output_gain_db ~= 0
             outBands{b} = outBands{b} * 10^(bp.output_gain_db/20);
         end
     end
