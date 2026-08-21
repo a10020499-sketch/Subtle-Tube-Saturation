@@ -13,21 +13,16 @@ code in this repository.
 2. `git log --oneline` reconstructs the experiment history; every commit message
    carries its own metrics (section 6.3 of the spec).
 
-## The gate that is currently blocking everything — R1-A
+## The R1-A reference-asset gate
 
-Both coloration tracks are at `status: awaiting_reference_assets`. Phase A
-**cannot start** until the user renders the four dry files through Saturn 2 and
-drops them, with identical filenames, into:
+The Saturn 2 reference renders are in place, so this gate is satisfied and both
+tracks have completed Phase A. `run_pipeline` still enforces it: if any reference
+file goes missing it writes the needed-file list to
+`loop_iterations/<track>/iter_00/hypothesis.md`, sets
+`status: awaiting_reference_assets`, and **halts** rather than spinning. See
+`render_manifest_template.csv` for the render recipe that produced them.
 
-- `data/reference/subtle_saturation/`
-- `data/reference/subtle_tube/`
-
-`run_pipeline` enforces this: if any reference file is missing it writes the
-needed-file list to `loop_iterations/<track>/iter_00/hypothesis.md`, sets the
-status, and **halts** — it must not spin (R1-A anti-spin). See
-`render_manifest_template.csv` for the render recipe.
-
-## Run one iteration (once references exist)
+## Run one Phase A iteration
 
 ```bash
 matlab -batch "addpath('src'); run_pipeline('subtle_saturation')"
@@ -92,27 +87,57 @@ gate, renders the dry set through the coloration core, and calls
 
 ## Current state — read this before resuming
 
-**Phase A COMPLETE for both tracks** (human_override saturn-like baselines, tagged
-`subtle_saturation-v1.0-saturn-baseline-approved`, `subtle_tube-v1.0-saturn-baseline-approved`).
-Remote: `github.com/a10020499-sketch/Subtle-Tube-Saturation` (public, LFS). Dry set
-is 96 kHz.
+**PHASE A and PHASE B are both COMPLETE.** Remote:
+`github.com/a10020499-sketch/Subtle-Tube-Saturation`. Dry set is 96 kHz; programme
+material and probes are 48 kHz.
 
-- **subtle_saturation**: static `signpow` odd curve (the `x|x|` square-law term is
-  the key to low-level THD; W-H EQ H6 not needed). THD 1.10 / Harm 1.69 / Sweep −55.
-- **subtle_tube**: `signpow` base + **H8 envelope-driven compressive bias**
-  (γ=0.85). Tube memory is nonlinear (loop grows with level), not a linear filter.
-  THD 1.17 / Harm 3.58.
-- Metric evolved v1→v3 (floor gates, then magnitude-weighted HarmonicProfileError).
-- Both tracks `phase=voice_tuning`, `voice_stage=saturn_like`.
-- **Multiband tool scaffold complete**: `multibandProcess`/`runMultiband` +
-  expanded `verifyMultiband` (all §5.3 gates pass; bypass recon −185 dB). Default
-  4 bands, crossovers 250/1k/4k Hz (config 2–6). Final integration still gated on
-  both `voice_signoff.final`.
+### The two shipped voices (tags `subtle_*-v1.0-final`)
 
-**Next = Phase B (Voice Tuning, §4.6)**: needs user program material in
-`data/program_material/` (vocal/bass/drumbus/mixbus) + human loudness-matched
-listening. Saturn 2 is frozen (R-ReferenceFreeze).
+The frozen Phase A baselines stay in `cfg.tracks.<t>.dof` so `tools/regressionCheck.m`
+and the R6 check keep meaning something. The voices the product ships are separate,
+in `cfg.voice.<t>.final`, and `multibandProcess` resolves them via `coreDof()`.
 
-Extra tooling beyond spec: `tools/fitDrive.m`, `tools/recoverCurve.m`
-(basis oddpoly/genpoly/signpow), `tools/fitTube.m` (H8 fit),
-`src/multibandProcess.m`, `src/runMultiband.m`.
+| | subtle_tube (F2_Z2) | subtle_saturation (Y1) |
+|---|---|---|
+| drive_k | 1.30 | 1.65 |
+| dynamic bias | depth 0.1665, γ 0.85 | n/a (symmetric curve) |
+| HF-clean split | 8 kHz, β 0.75, follow 1.0 | 8 kHz, β 0.50, follow 1.0 |
+| transient preserve | depth 1.0 | off |
+| post-EQ | identity | two high shelves @8 kHz, +3.0 and +2.5 dB |
+| dynamics (H9) | bypass | upward 1.5:1 @ −30 dB, 2/300 ms |
+
+`PHASE_B_REPORT_*.md` records how every value was arrived at, the two defects found
+mid-phase (curve fold-back above the measured range; the transient detector idling
+open and silently removing half the saturation on sustained material), and the one
+question the measurements could not settle (bias 2.20 vs 1.85 punch — 0.2 dB of
+masking, single-trial blind A/B, listener's choice kept).
+
+### Verification status — all green
+
+| gate | result |
+|---|---|
+| Phase A regression (`tools/regressionCheck.m`) | PASS, −119.4…−126.4 dB |
+| R6: clean checkout of the tag vs working tree | PASS, −125.6…−128.3 dB |
+| Multiband bypass / crossover reconstruction | −185.4 dB (gate −60) |
+| Per-band Wet=0% / Wet=100% | −168.5 / −168.9 dB (gate −80) |
+| Mixed-mode render | finite, bounded, click-free |
+| Drive headroom (`tools/checkDriveHeadroom.m`) | clamp 0.10% tube / 0.52% saturation, no fold-back |
+
+Caveat worth knowing: running `regressionCheck` *inside* a clean clone reports
+"no archive" and proves nothing, because `output/` is gitignored. The meaningful R6
+proof is the sample-exact comparison of the final renders listed above.
+
+### What is next
+
+`multiband_tool` is **ready** and already loads the final voices. Open tool-design
+item: driven hard, a hot programme peaks at 0.92 through the tube path, so the tool
+wants an output trim / gain-staging control before real use. Per-band Drive and
+Dry/Wet already exist; crossover default is 4 bands at 250 / 1k / 4k Hz (2–6
+configurable in `config.m`).
+
+Extra tooling beyond what the spec names: `fitDrive`, `recoverCurve`, `fitTube`,
+`diagnoseAliasing`, `evalHFOptions`, `voiceMetrics`, `punchScore` (the TAG metric),
+`attackClarity`, `tiltReport`, `clampOf`, `nlB`, `hh`, `checkDriveHeadroom`,
+`regressionCheck`, `generateSpectrumProbes`, `renderVoiceVariants`, plus the
+`setTP` / `setDuck` / `setBD` / `withEQ` / `withUpward` / `hfVariant` / `lfVariant`
+config helpers.
